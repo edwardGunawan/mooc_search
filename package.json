@@ -1,0 +1,35 @@
+{
+  "name": "mooc_search",
+  "version": "1.0.0",
+  "description": "Mooc's Agregator",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec babel-node server.js",
+    "example": "nodemon --exec babel-node ./public/js/example.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/edwardGunawan/mooc_search.git"
+  },
+  "author": "Edward Huang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/edwardGunawan/mooc_search/issues"
+  },
+  "homepage": "https://github.com/edwardGunawan/mooc_search#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.2",
+    "lodash": "^4.17.5",
+    "puppeteer": "^1.0.0",
+    "request": "^2.83.0",
+    "sequelize": "^4.33.1",
+    "sqlite3": "^3.1.13",
+    "urijs": "^1.19.0"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1"
+  }
+}
