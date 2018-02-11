@@ -58,7 +58,7 @@ var course_udacity = async () => {
 var course_udemy = async() =>{
   return udemyAPI.get_course_list({
     page_size: 100,
-    page: 13,
+    page: 10,
     path:'/api-2.0/courses',
     category:'Development',
     ordering:'relevance',
@@ -138,7 +138,7 @@ Promise.all([course_udacity(),course_udemy(),course_iversity()]).then(([udacity,
   let udemy_obj = JSON.parse(udemy);
   let iversity_obj = JSON.parse(iversity);
   let all_courses = [...udacity_obj,...udemy_obj,...iversity_obj]; // combine all array of objects courses into 1 array object courses
-  fs.writeFile('../../data/course.json', JSON.stringify(all_courses), (err) => {
+  fs.writeFile(__dirname + '/../../data/course.json', JSON.stringify(all_courses), (err) => {
     if(err) throw err;
     console.log('File is written!');
   });
