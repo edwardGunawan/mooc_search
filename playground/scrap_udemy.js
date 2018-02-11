@@ -39,13 +39,15 @@ let getLiContent = async ($) => {
   $('#udemy > div.main-content-wrapper > div.main-content > ui-view > ui-view > div.p_channel.channels.skin6.channel-featured > div.tab-content > div > div > ul.card-wrapper li').each((i,el) => {
       let title = $(el).find('h1').text();
       let rel_link = $(el).find('.search-course-card--card--left-col--3kKip').children('a').attr('href');
+      let instructors = $(el).find('li:nth-child(7) > search-course-card-container > div > div > div.fx > div.search-course-card--card__content--3-BSH > div.search-course-card--card--middle-col--1LrYN > p > a > span:nth-child(1)');
+      console.log(instructors.html());
       // console.log(rel_link);
       // #udemy > div.main-content-wrapper > div.main-content > ui-view > ui-view > div.p_channel.channels.skin6.channel-featured > div.tab-content > div > div > ul.card-wrapper > li:nth-child(1) > search-course-card-container > div > div > div.search-course-card--card--left-col--3kKip > a
       let link = START_URL + rel_link
       let price = $(el).find('.search-course-card--card__price-wrapper--HKgH3').text();
       // console.log(price);
       let img = $('img').attr('src');
-      list.push({title,link,img,price})
+      list.push({title,link,img,price,instructor})
   });
   return list;
 }
