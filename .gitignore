@@ -1,2 +1,6 @@
 node_modules/
 .env
+data/course_iversity.json
+data/course_udacity.json
+data/course_udemy.json
+data/course.json
