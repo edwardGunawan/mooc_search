@@ -37,13 +37,16 @@ var course_udacity = async () => {
     let i = 0;
     let all_courses = [];
     for(let course of courses_arr) {
+      let instr_name = course.instructors.map(instr => instr.name);
+      // console.log('instr_name ',instr_name );
       all_courses.push({
+        id: `${i}_uda`,
         title:course.subtitle,
         image: course.image,
         link: course.homepage,
-        description: course.short_summary,
+        description: `${(course.short_summary) ? course.short_summary : "no description"}`,
         price: '$199/month',
-        instructors: course.instructors,
+        instructors: instr_name,
         level: course.level
       });
       i++;
@@ -70,15 +73,17 @@ var course_udemy = async() =>{
 
     for(course of course_arr) {
     let name = course.visible_instructors.map(instr => instr.display_name);
+    // console.log(name);
 
       all_courses.push({
-            title: course.title,
-            image: course.image_480x270,
-            link: base_url + course.link,
-            description:  null,
-            price:  course.price,
-            instructors: name,
-            expected_duration: null
+        id:`${i}_ude`,
+        title: course.title,
+        image: course.image_480x270,
+        link: base_url + course.link,
+        description:  `${(course.description) ? course.description: 'no description'}`,
+        price:  course.price,
+        instructors: name,
+        expected_duration: `${(course.expected_ducation)?course.expected_ducation:0}`
       });
       i++;
     }
@@ -101,10 +106,11 @@ var course_iversity = async() => {
         let instructor_name = course.instructors.map(instr => instr.name);
         // console.log('instructors',instructor_name);
         all_courses.push({
+          id:`${courseCount}_iv`,
           title:course.title,
           image: course.image,
           link: course.url,
-          description: course.description,
+          description: `${(course.description)?course.description:"nodescription"}`,
           price: `${currencyMap.EUR.symbol} 300/month`,
           instructors: instructor_name,
           expected_duration: course.duration,

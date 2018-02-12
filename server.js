@@ -1,13 +1,16 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-
+var routes = require('./controllers/test_elastic.js');
 var app = express();
 var PORT = process.env.PORT || 3000;
 
 
 app.use(bodyParser.json());
-
-app.use(express.static('public'));
+app.get('/', (req,res) => {
+  res.send('home');
+})
+app.use('/elastic',routes);
+// app.use(express.static('public'));
 
 app.listen(PORT, function() {
   console.log('Express Listen', PORT);
