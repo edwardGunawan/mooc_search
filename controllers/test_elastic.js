@@ -14,27 +14,28 @@ routes.get('/checkHealth',(req,res) =>{
 // indexInit
 routes.post('/index',(req,res) => {
   // res.send('get to index next');
-  method.indexInit(req,res,req.body.index_name);
+  method.indexInit(req,res);
 });
 
 //indexExist (check index exist)
 routes.get('/check',(req,res) => {
   // index will be in the req.query
-  res.send('get to index check');
+  // res.send('get to index check');
+  method.indexExist(req,res);
 });
 
 // import jsonFile
 routes.post('/index/bulk', (req,res) => {
   // res.send('get to bulk');
-  method.importJSONFile(req,res,'courses','cs');
+  method.importJSONFile(req,res);
 });
 
 // mapInit (create maps)
 routes.post('/maps', (req,res) => {
   console.log(req.body);
   // req.body will have index in it
-  // method.mapInit(req,res,'mooc_search','courses',)
-  res.send('Get to index map init');
+  method.mapInit(req,res)
+  // res.send('Get to index map init');
 });
 
 

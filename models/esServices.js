@@ -7,55 +7,97 @@ var jsonFile = require('../data/course.json');
   */
 const indexName = 'mooc_search';
 const type = 'course';
-const body = {
+const body =
+{
   properties:{
     title: {
-      type: 'string'
+      type: 'text',
+      analyzer:'nGram_analyzer'
     },
     image: {
-      type:'string'
+      type:'text'
     },
     link: {
-      type:'string'
+      type:'text'
     },
     description: {
-      type:'string'
+      type:'text',
+      analyzer:'nGram_analyzer'
     },
     currency_unit: {
-      type:'string'
+      type:'text'
     },
     amount: {
-      type:'double'
+      type:'text'
     },
     instructors : {
       type:'nested',
       properties : {
         name: {
-          type: 'string'
+          type: 'text',
+          analyzer:'nGram_analyzer'
         },
         bio: {
-          type:'string'
+          type:'text',
+          analyzer:'nGram_analyzer'
         },
         image: {
-          type: 'string'
+          type: 'text'
         }
-      },
-      level : {
-        type:'string'
-      },
-      expected_duration: {
-        type:'string'
-      },
-      start_date: {
-        type:'double'
-      },
-      end_date:{
-        type:'double'
-      },
-      language: {
-        type:'string'
       }
+    },
+    level : {
+      type:'keyword'
+    },
+    expected_duration: {
+      type:'text'
+    },
+    start_date: {
+      type:'keyword'
+    },
+    end_date:{
+      type:'keyword'
+    },
+    language: {
+      type:'text'
     }
+  }
+}
+
+var settings = {
+  analysis:{
+   filter:{
+      nGram_filter:{
+         type:'edgeNGram',
+         min_gram:1,
+         max_gram:20,
+         token_chars:[
+            'letter', // do not split on letters and consider words only
+            'digit' // do not split on digits. eg: 21 cannot be 2 and 1
+         ]
+      }
+   },
+   tokenizer:{
+      edge_ngram_tokenizer:{
+         type:'edgeNGram',
+         min_gram:1,
+         max_gram:20,
+         token_chars:[
+            'letter',
+            'digit'
+         ]
+      }
+   },
+   analyzer:{
+      nGram_analyzer:{
+         type:'custom',
+         tokenizer:'edge_ngram_tokenizer',
+         filter:[
+            'lowercase',  // convert all token to lowercase
+            'asciifolding' // that converts non ASCII characters into there equivalent 127 ASCII characters like Café Society into Cafe Society etc
+         ]
+        }
+      }
   }
 }
 
@@ -90,11 +132,12 @@ module.exports = {
   // create index
   indexInit : (req,res) =>{
     client.indices.create({
-      index:indexName
-    }).then((res) => {
-      console.log(res);
-      res.status(200).json(res);
-    },(err) => {
+      index:indexName,
+      body: settings
+    }).then((response) => {
+      console.log(response);
+      res.status(200).json(response);
+    }).catch((err) => {
       console.log(err);
       res.status(500).json(err)
     });
@@ -102,12 +145,12 @@ module.exports = {
 
   // check index if it exist
   indexExist : (req,res) => {
-    client.indices.exist({
+    client.indices.exists({
       index:indexName
-    }).then((res) => {
-      console.log(res);
-      res.status(200).json(res);
-    },(err) => {
+    }).then((response) => {
+      console.log(response);
+      res.status(200).json(response);
+    }).catch((err) => {
       console.log(err);
       res.status(500).json(err);
     });
@@ -151,13 +194,21 @@ module.exports = {
   // creating mapping
   mapInit: (req,res) => {
     client.indices.putMapping({
-      index:'mooc_search',
-      type:'courses',
+      index:indexName,
+      type: type,
       body : body
     }).then((response) => {
       res.status(200).json(response);
     },err => res.status(500).json(err));
   },
+
+  // creating settings
+  // settingsInit: (req,res) => {
+  //   client.indices.putSettings({
+  //     index:indexName,
+  //     settings:
+  //   }).then(response)
+  // }
 
 
   // add/update document
