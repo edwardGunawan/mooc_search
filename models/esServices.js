@@ -1,5 +1,63 @@
 var client = require('./connection.js');
 var jsonFile = require('../data/course.json');
+/*
+  mapping:
+  mooc_search: index
+  course type
+  */
+const indexName = 'mooc_search';
+const type = 'course';
+const body = {
+  properties:{
+    title: {
+      type: 'string'
+    },
+    image: {
+      type:'string'
+    },
+    link: {
+      type:'string'
+    },
+    description: {
+      type:'string'
+    },
+    currency_unit: {
+      type:'string'
+    },
+    amount: {
+      type:'double'
+    },
+    instructors : {
+      type:'nested',
+      properties : {
+        name: {
+          type: 'string'
+        },
+        bio: {
+          type:'string'
+        },
+        image: {
+          type: 'string'
+        }
+      },
+      level : {
+        type:'string'
+      },
+      expected_duration: {
+        type:'string'
+      },
+      start_date: {
+        type:'double'
+      },
+      end_date:{
+        type:'double'
+      },
+      language: {
+        type:'string'
+      }
+    }
+  }
+}
 
 module.exports = {
   // ping server if it connected or not
@@ -30,7 +88,7 @@ module.exports = {
   },
 
   // create index
-  indexInit : (req,res, indexName) =>{
+  indexInit : (req,res) =>{
     client.indices.create({
       index:indexName
     }).then((res) => {
@@ -43,7 +101,7 @@ module.exports = {
   },
 
   // check index if it exist
-  indexExist : (req,res,indexName) => {
+  indexExist : (req,res) => {
     client.indices.exist({
       index:indexName
     }).then((res) => {
@@ -56,7 +114,7 @@ module.exports = {
   },
 
   // importJSON
-  importJSONFile : (req,res, indexName, type) => {
+  importJSONFile : (req,res) => {
     let bulkBody= [];
     jsonFile.forEach(item => {
       // action description
@@ -91,11 +149,11 @@ module.exports = {
   },
 
   // creating mapping
-  mapInit: (req,res,indexName, docType, payLoad) => {
+  mapInit: (req,res) => {
     client.indices.putMapping({
-      index:indexName,
-      type:docType,
-      body : payLoad
+      index:'mooc_search',
+      type:'courses',
+      body : body
     }).then((response) => {
       res.status(200).json(response);
     },err => res.status(500).json(err));

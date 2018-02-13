@@ -2,6 +2,7 @@ var APIS = require('./get_course_content.js');
 require('dotenv').config();
 var fs = require('fs');
 var currencyMap = require('../../data/currencymap.json');
+var striptags = require('striptags');
 
 const udemy_client_id = process.env.Udemy_API_CLIENT;
 const udemy_client_pass = process.env.Udemy_API_SECRET_PASS;
@@ -15,17 +16,27 @@ var iversityAPI = new APIS.getIversityAPI();
 // json file structure
 /*
   {
-    title:
-    image:
-    link:
-    description:
-    price:
-    instructors:
-    expected_duration:
-    level:
-    start_date:
-    end_date:
-    language:
+    id:'string'
+    title: 'string'
+    image: 'string'
+    link: 'string'
+    description: 'string'
+    price: {
+      currency-unit: 'string'
+      amount: double
+    }
+    instructors:[
+      {
+        name: 'string'
+        bio: 'string'
+        image: 'string'
+      }
+    ]
+    expected_duration: 'string'
+    level: 'string'
+    start_date: 'double'
+    end_date: 'double'
+    language: 'string'
   }
 */
 // var all_courses = [];
@@ -37,7 +48,13 @@ var course_udacity = async () => {
     let i = 0;
     let all_courses = [];
     for(let course of courses_arr) {
-      let instr_name = course.instructors.map(instr => instr.name);
+      let instructor_arr = course.instructors.map(instr => {
+        return {
+          name :instr.name,
+          bio: instr.bio,
+          image:instr.image
+        }
+      });
       // console.log('instr_name ',instr_name );
       all_courses.push({
         id: `${i}_uda`,
@@ -45,9 +62,14 @@ var course_udacity = async () => {
         image: course.image,
         link: course.homepage,
         description: `${(course.short_summary) ? course.short_summary : "no description"}`,
-        price: '$199/month',
-        instructors: instr_name,
-        level: course.level
+        current_unit: 'dollar',
+        amount:'199/month',
+        instructors: instructor_arr,
+        level: course.level,
+        expected_duration:`${course.expected_duration} ${course.expected_duration_unit}`,
+        start_date:0,
+        end_date:0,
+        language:'en'
       });
       i++;
     }
@@ -72,7 +94,13 @@ var course_udemy = async() =>{
     let i = 0;
 
     for(course of course_arr) {
-    let name = course.visible_instructors.map(instr => instr.display_name);
+    let name = course.visible_instructors.map(instr => {
+      return {
+        name: instr.display_name,
+        image: instr.image_100x100,
+        bio: instr.job_title
+      }
+    });
     // console.log(name);
 
       all_courses.push({
@@ -81,9 +109,13 @@ var course_udemy = async() =>{
         image: course.image_480x270,
         link: base_url + course.link,
         description:  `${(course.description) ? course.description: 'no description'}`,
-        price:  course.price,
+        currency_unit: course.price.charAt(0),
+        amount:course.price,
         instructors: name,
-        expected_duration: `${(course.expected_ducation)?course.expected_ducation:0}`
+        expected_duration: `${(course.expected_ducation)?course.expected_ducation:0}`,
+        start_date:0,
+        end_date:0,
+        language:'en'
       });
       i++;
     }
@@ -103,16 +135,23 @@ var course_iversity = async() => {
       let all_courses = [];
       bodyObj.courses.forEach((course) => {
         // get all instructors name
-        let instructor_name = course.instructors.map(instr => instr.name);
+        let instructor_arr = course.instructors.map(instr => {
+          return {
+            name:instr.name,
+            bio:`${striptags(instr.biography)}`,
+            image:instr.image
+          }
+        });
         // console.log('instructors',instructor_name);
         all_courses.push({
           id:`${courseCount}_iv`,
           title:course.title,
           image: course.image,
           link: course.url,
-          description: `${(course.description)?course.description:"nodescription"}`,
-          price: `${currencyMap.EUR.symbol} 300/month`,
-          instructors: instructor_name,
+          description: `${(course.description)?striptags(course.description):"nodescription"}`,
+          currency_unit: 'euro',
+          amount:'300/month',
+          instructors: instructor_arr,
           expected_duration: course.duration,
           level: course.knowledge_level,
           start_date: course.start_date,
