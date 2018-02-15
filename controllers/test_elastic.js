@@ -53,33 +53,10 @@ routes.put('/documents/:id', (req,res) => {
 // search
 routes.get('/search',(req,res) => {
   console.log(req.query.q);
-  if(typeof req.query.q === 'string') {
-    console.log(req.query.q);
-    let body = {
-      size:20,
-      query: {
-        multi_match: {
-          query: req.query.q,
-          type: "best_fields",
-          fields:['title','description','instructors'],
-          tie_breaker:0.3,
-          fuzziness:"AUTO"
-        },
-      },
-      query:{
-        match_phrase_prefix: {
-          'description': {
-            query:req.query.q,
-            slop:10
-          }
-        }
-      }
-    }
-    method.search(req,res,'courses','cs',body);
-
-  }
-
-  // res.send('get to search');
+  // res.status(200).send();
+  method.search(req.query.q).then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => res.status(500).json(e));
 });
 
 /* ---------------***** [RESTRICTED] ******/

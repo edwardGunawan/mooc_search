@@ -1,5 +1,7 @@
 var client = require('./connection.js');
 var jsonFile = require('../data/course.json');
+const mapping = require('./mapping.js');
+const settings = require('./settings.js');
 /*
   mapping:
   mooc_search: index
@@ -7,99 +9,7 @@ var jsonFile = require('../data/course.json');
   */
 const indexName = 'mooc_search';
 const type = 'course';
-const body =
-{
-  properties:{
-    title: {
-      type: 'text',
-      analyzer:'nGram_analyzer'
-    },
-    image: {
-      type:'text'
-    },
-    link: {
-      type:'text'
-    },
-    description: {
-      type:'text',
-      analyzer:'nGram_analyzer'
-    },
-    currency_unit: {
-      type:'text'
-    },
-    amount: {
-      type:'text'
-    },
-    instructors : {
-      type:'nested',
-      properties : {
-        name: {
-          type: 'text',
-          analyzer:'nGram_analyzer'
-        },
-        bio: {
-          type:'text',
-          analyzer:'nGram_analyzer'
-        },
-        image: {
-          type: 'text'
-        }
-      }
-    },
-    level : {
-      type:'keyword'
-    },
-    expected_duration: {
-      type:'text'
-    },
-    start_date: {
-      type:'keyword'
-    },
-    end_date:{
-      type:'keyword'
-    },
-    language: {
-      type:'text'
-    }
-  }
-}
 
-var settings = {
-  analysis:{
-   filter:{
-      nGram_filter:{
-         type:'edgeNGram',
-         min_gram:1,
-         max_gram:20,
-         token_chars:[
-            'letter', // do not split on letters and consider words only
-            'digit' // do not split on digits. eg: 21 cannot be 2 and 1
-         ]
-      }
-   },
-   tokenizer:{
-      edge_ngram_tokenizer:{
-         type:'edgeNGram',
-         min_gram:1,
-         max_gram:20,
-         token_chars:[
-            'letter',
-            'digit'
-         ]
-      }
-   },
-   analyzer:{
-      nGram_analyzer:{
-         type:'custom',
-         tokenizer:'edge_ngram_tokenizer',
-         filter:[
-            'lowercase',  // convert all token to lowercase
-            'asciifolding' // that converts non ASCII characters into there equivalent 127 ASCII characters like Café Society into Cafe Society etc
-         ]
-        }
-      }
-  }
-}
 
 module.exports = {
   // ping server if it connected or not
@@ -144,17 +54,17 @@ module.exports = {
   },
 
   // check index if it exist
-  indexExist : (req,res) => {
-    client.indices.exists({
-      index:indexName
-    }).then((response) => {
-      console.log(response);
-      res.status(200).json(response);
-    }).catch((err) => {
-      console.log(err);
-      res.status(500).json(err);
-    });
-  },
+  // indexExist : (req,res) => {
+  //   client.indices.exists({
+  //     index:indexName
+  //   }).then((response) => {
+  //     console.log(response);
+  //     res.status(200).json(response);
+  //   }).catch((err) => {
+  //     console.log(err);
+  //     res.status(500).json(err);
+  //   });
+  // },
 
   // importJSON
   importJSONFile : (req,res) => {
@@ -212,43 +122,92 @@ module.exports = {
 
 
   // add/update document
-  addDocument : (req,res,indexName, _id, docType, payLoad) =>{
-    client.index({
-      index:indexName,
-      type: docType,
-      id: _id,
-      body: payLoad
-    }).then(response => {
-      res.status(200).json(response);
-    },err => res.status(500).json(err));
-  },
+  // addDocument : (req,res,indexName, _id, docType, payLoad) =>{
+  //   client.index({
+  //     index:indexName,
+  //     type: docType,
+  //     id: _id,
+  //     body: payLoad
+  //   }).then(response => {
+  //     res.status(200).json(response);
+  //   },err => res.status(500).json(err));
+  // },
+  //
+  // updateDocument: (req,res,indexName, _id, docType, payLoad) => {
+  //   client.update({
+  //     index:indexName,
+  //     type:docType,
+  //     id:_id,
+  //     body: payLoad
+  //   }).then(response =>{
+  //     res.status(200).json(response);
+  //   },err=>{
+  //     res.status(500).json(err);
+  //   })
+  // },
 
-  updateDocument: (req,res,indexName, _id, docType, payLoad) => {
-    client.update({
-      index:indexName,
-      type:docType,
-      id:_id,
-      body: payLoad
-    }).then(response =>{
-      res.status(200).json(response);
-    },err=>{
-      res.status(500).json(err);
-    })
-  },
-
-  search: (req,res,indexName, docType, payLoad) => {
+  search: async (options) => {
     client.search({
       index:indexName,
       type:docType,
-      body:payLoad
-    }).then(response => {
-      console.log(response);
-      return res.json(response);
-    },(err) => {
-      console.log(err);
-      res.json(err);
-    });
+      body:{
+        query:{
+          bool:{
+            filter: filters(options),
+            must:{
+              multi_match:{
+                query:options.input,
+                fields:['title^3','title.edge_ngram','description^2','instructors.name','instructors.bio'],
+                operator:'and',
+                fuzziness:'3',
+                type:'most_field' // search for the combination of the score of all
+              }
+            }
+          },
+          highlight:{fields:{description:{ }}}
+        }
+      }
+
+    }).then((res) => {
+      return res.hits.hits.map(__searchHitResult);
+    }).catch(e => e);
+
   },
+
+  __searchHitResult: (hit) => {
+    return {
+      title:hit.title,
+      image:hit.image,
+      link:hit.link,
+      description:hit.description,
+      currency:hit.currency_unit+hit.amount,
+      instructors:hit.instructors,
+      expected_duration:hit.expected_duration,
+      start_date:hit.start_date,
+      end_date: hit.end_date,
+      language:hit.language
+    }
+  },
+  _filter: (options) => {
+    // const clauses = [];
+    // if(options.since){
+    //   clauses.unshift(_since(options.since));
+    // }
+    return {};
+    // return _all(clauses);
+  },
+
+  _since: (date) =>{
+    return { range: { created: { gte:date}}};
+  },
+
+  _all: (clauses)=>{
+    return { bool: { must:clauses} };
+  },
+
+
+
+
 
 
   /* ================== Danger Zone =============== [RESTRICTED USE]*/
