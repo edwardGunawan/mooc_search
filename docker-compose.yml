@@ -5,8 +5,8 @@
 version: '3'
 
 services:
-  api: #node.js app
-    container_name: mc-api
+  api: #node.js app for backend application logic
+    container_name: ms-api
     build: .
     ports:
       - "3000:3000" # expose API port
@@ -16,10 +16,10 @@ services:
       - ES_HOST=elasticsearch
       - PORT=3000
     volumes: # Attach local data directory
-      - ./data:/usr/src/app/data
+      - ./Server/data:/usr/src/app/data
 
   frontend: # Nginx server for frontend
-    container_name: mc-frontend
+    container_name: ms-frontend
     image: nginx
     volumes: #Serve local public dir
       - ./public:/usr/share/nginx/html

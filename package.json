@@ -5,8 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --inspect=0.0.0.0:9292 server.js",
-    "example": "nodemon --exec babel-node ./public/js/example.js"
+    "start": "node --inspect=0.0.0.0:9292 Server/server.js",
+    "example": "nodemon --exec babel-node ./public/js/example.js",
+    "test-connection": "docker exec ms-api \"node\" \"Server/SearchServices/connection.js\"",
+    "test-elastic":"docker exec ms-api \"node\" \"Server/SearchServices/bulkImport.js\"",
+    "test-search":"docker exec ms-api \"node\" \"Server/SearchServices/search.test.js\""
   },
   "repository": {
     "type": "git",
@@ -26,6 +29,8 @@
     "express": "^4.16.2",
     "express-joi-validation": "^0.2.1",
     "file-system": "^2.2.2",
+    "helmet": "^3.11.0",
+    "joi": "^13.1.2",
     "js-base64": "^2.4.3",
     "lodash": "^4.17.5",
     "puppeteer": "^1.0.0",
