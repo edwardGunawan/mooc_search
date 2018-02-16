@@ -11,7 +11,7 @@ const indexName = 'mooc_search';
 const type = 'course';
 
 
-module.exports = {
+var esServices = {
   // ping server if it connected or not
   ping : (req,res) => {
     client.ping({
@@ -74,8 +74,7 @@ module.exports = {
       bulkBody.push({
         index : {
           _index:indexName,
-          _type:type,
-          _id : item.id
+          _type:type
         }
       });
       // the document to index
@@ -106,7 +105,7 @@ module.exports = {
     client.indices.putMapping({
       index:indexName,
       type: type,
-      body : body
+      body : mapping
     }).then((response) => {
       res.status(200).json(response);
     },err => res.status(500).json(err));
@@ -146,46 +145,49 @@ module.exports = {
   //   })
   // },
 
-  search: async (options) => {
-    client.search({
+  search: async (options,offset=0) => {
+    const response = await client.search({
       index:indexName,
-      type:docType,
+      type:type,
       body:{
+        from: offset, // allow return how many amount for pagination
         query:{
           bool:{
-            filter: filters(options),
-            must:{
-              multi_match:{
-                query:options.input,
-                fields:['title^3','title.edge_ngram','description^2','instructors.name','instructors.bio'],
-                operator:'and',
-                fuzziness:'3',
-                type:'most_field' // search for the combination of the score of all
+            // filter: filters(options),
+            must:[
+              {
+                multi_match:{
+                  query:options,
+                  fields:['title^3','title.edge_ngram','description^2','instructors.name','instructors.bio'],
+                  operator:'and',
+                  fuzziness:'3',
+                  type:'most_fields' // search for the combination of the score of all
+                }
               }
-            }
-          },
-          highlight:{fields:{description:{ }}}
-        }
+            ]
+          }
+        },
+        highlight:{fields:{description:{ }}}
       }
-
-    }).then((res) => {
-      return res.hits.hits.map(__searchHitResult);
-    }).catch(e => e);
+    });
+    return response.hits.hits.map(esServices._searchHitResult);
 
   },
 
-  __searchHitResult: (hit) => {
+  _searchHitResult: (hit) => {
+    console.log(hit._source.currency_unit);
     return {
-      title:hit.title,
-      image:hit.image,
-      link:hit.link,
-      description:hit.description,
-      currency:hit.currency_unit+hit.amount,
-      instructors:hit.instructors,
-      expected_duration:hit.expected_duration,
-      start_date:hit.start_date,
-      end_date: hit.end_date,
-      language:hit.language
+      title:hit._source.title,
+      image:hit._source.image,
+      link:hit._source.link,
+      description:hit._source.description,
+      currency:hit._source.currency_unit+hit._source.amount,
+      instructors:hit._source.instructors,
+      expected_duration:hit._source.expected_duration,
+      start_date:hit._source.start_date,
+      end_date: hit._source.end_date,
+      language:hit._source.language,
+      highlight:hit.highlight
     }
   },
   _filter: (options) => {
@@ -237,3 +239,4 @@ module.exports = {
   }
 
 }
+module.exports = esServices; // so we can reference it later

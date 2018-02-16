@@ -55,8 +55,9 @@ routes.get('/search',(req,res) => {
   console.log(req.query.q);
   // res.status(200).send();
   method.search(req.query.q).then((response) => {
+    console.log('response is ', response);
     res.status(200).json(response);
-  }).catch((e) => res.status(500).json(e));
+  }).catch((e) => res.status(500).json(e.message));
 });
 
 /* ---------------***** [RESTRICTED] ******/

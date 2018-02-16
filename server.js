@@ -7,11 +7,12 @@ var PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.get('/', (req,res) => {
-  res.send('home');
-})
+  res.send('home from backend');
+});
+
 app.use('/elastic',routes);
 // app.use(express.static('public'));
 
 app.listen(PORT, function() {
-  console.log('Express Listen', PORT);
+  console.log('App Listening to', PORT);
 });

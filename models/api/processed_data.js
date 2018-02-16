@@ -57,12 +57,12 @@ var course_udacity = async () => {
       });
       // console.log('instr_name ',instr_name );
       all_courses.push({
-        id: `${i}_uda`,
+        // id: `${i}_uda`,
         title:course.subtitle,
         image: course.image,
         link: course.homepage,
         description: `${(course.short_summary) ? course.short_summary : "no description"}`,
-        current_unit: 'dollar',
+        currency_unit: '$',
         amount:'199/month',
         instructors: instructor_arr,
         level: course.level,
@@ -104,13 +104,13 @@ var course_udemy = async() =>{
     // console.log(name);
 
       all_courses.push({
-        id:`${i}_ude`,
+        // id:`${i}_ude`,
         title: course.title,
         image: course.image_480x270,
         link: base_url + course.link,
         description:  `${(course.description) ? course.description: 'no description'}`,
         currency_unit: course.price.charAt(0),
-        amount:course.price,
+        amount:course.price.substring(1),
         instructors: name,
         expected_duration: `${(course.expected_ducation)?course.expected_ducation:0}`,
         start_date:0,
@@ -144,12 +144,12 @@ var course_iversity = async() => {
         });
         // console.log('instructors',instructor_name);
         all_courses.push({
-          id:`${courseCount}_iv`,
+          // id:`${courseCount}_iv`,
           title:course.title,
           image: course.image,
           link: course.url,
           description: `${(course.description)?striptags(course.description):"nodescription"}`,
-          currency_unit: 'euro',
+          currency_unit: `${currencyMap.EUR.symbol_native}`,
           amount:'300/month',
           instructors: instructor_arr,
           expected_duration: course.duration,

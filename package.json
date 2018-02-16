@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec babel-node server.js",
+    "start": "node --inspect=0.0.0.0:9292 server.js",
     "example": "nodemon --exec babel-node ./public/js/example.js"
   },
   "repository": {
@@ -24,6 +24,7 @@
     "dotenv": "^5.0.0",
     "elasticsearch": "^14.1.0",
     "express": "^4.16.2",
+    "express-joi-validation": "^0.2.1",
     "file-system": "^2.2.2",
     "js-base64": "^2.4.3",
     "lodash": "^4.17.5",
