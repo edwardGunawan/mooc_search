@@ -1,7 +1,7 @@
 var elasticsearch = require('elasticsearch');
 var port = 9200;
 var host = process.env.ES_HOST || 'localhost';
-var client = new elasticsearch.Client({ host :{host,port} });
+var client = new elasticsearch.Client({ host :{host,port},log:'trace' });
 const schema = require('./mapping.js');
 const settings = require('./settings.js');
 var jsonFile = require('../data/course.json');
@@ -85,6 +85,6 @@ var setup = {
 
 
 
-setup.checkConnection();
+// setup.checkConnection();
 
-module.exports = { client,index,type, setup};
+module.exports = {client, index,type, setup};

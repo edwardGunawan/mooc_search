@@ -11,7 +11,7 @@ var search = async (options,offset=0) => {
           must:[
             {
               multi_match:{
-                query:options.input,
+                query:options,
                 fields:['title^3','title.edge_ngram','description^2','instructors.name','instructors.bio'],
                 operator:'and',
                 fuzziness:'3',
