@@ -1,5 +1,8 @@
 module.exports = {
   properties:{
+    title_tag:{
+      type:'text'
+    },
     title: {
       type: 'text',
       analyzer:'standard', // analyze standard
@@ -58,13 +61,22 @@ module.exports = {
       type:'text'
     },
     start_date: {
-      type:'keyword'
+      type:'date'
+      // format:'yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis',
+      // ignore_malformed:true
     },
     end_date:{
-      type:'keyword'
+      type:'date'
+      // format:'yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis',
+      // ignore_malformed: true
     },
     language: {
       type:'text'
+    },
+    suggest:{
+      type: 'completion',
+      analyzer:'simple',
+      search_analyzer:'simple'
     }
   }
 }

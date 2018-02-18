@@ -7,6 +7,7 @@ try {
   .then(() => resetIndex())
   .then(() => bulkImport())
   .catch(e => console.error(`error message : ${e}`));
+  // bulkImport().catch(e => console.error(e));
 
 }catch(e){
   console.error(`cathch-error: ${e}`);

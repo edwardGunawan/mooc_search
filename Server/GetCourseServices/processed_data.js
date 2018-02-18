@@ -3,6 +3,7 @@ require('dotenv').config({path:__dirname+'/./../../.env'});
 var fs = require('fs');
 var currencyMap = require('../data/currencymap.json');
 var striptags = require('striptags');
+var sw = require('stopword');
 
 const udemy_client_id = process.env.Udemy_API_CLIENT;
 const udemy_client_pass = process.env.Udemy_API_SECRET_PASS;
@@ -36,9 +37,42 @@ var iversityAPI = new APIS.getIversityAPI();
     level: 'string'
     start_date: 'double'
     end_date: 'double'
-    language: 'string'
+    language: 'string',
+    title_tag:['string']
   }
 */
+var map_language = {
+  'Modern Standard Arabic': 'ar',
+  'Bengali':'bn',
+  'Brazilian Portuguese':'br',
+  'Danish':'da',
+  'German':'de',
+  'English':'en',
+  'Spanish':'es',
+  'Farsi':'fa',
+  'French':'fr',
+  'Hindi':'hi',
+  'Italian':'it',
+  'Japanese':'ja',
+  'Dutch':'nl',
+  'Norwegian':'no',
+  'Polish':'pl',
+  'Portuguese':'pt',
+  'Russian':'ru',
+  'Swedish':'sv',
+  'Chinese Simplified':'zh'
+
+}
+
+/*
+  Removing Stopword in the title and put it as a title_tag in one of the field
+  for completion-suggester
+*/
+var getTitleTag = (title, language='English') => {
+  const old_title = title.toLowerCase().split(' ');
+  return sw.removeStopwords(old_title,sw[map_language[language]]).filter((x) => (x !== (undefined || null || '')));
+
+}
 // var all_courses = [];
 /* getting udacity API and process the data */
 var course_udacity = async () => {
@@ -58,18 +92,19 @@ var course_udacity = async () => {
       // console.log('instr_name ',instr_name );
       all_courses.push({
         // id: `${i}_uda`,
-        title:course.subtitle,
+        title:course.title || course.subtitle,
         image: course.image,
         link: course.homepage,
         description: `${(course.short_summary) ? course.short_summary : "no description"}`,
         currency_unit: '$',
-        amount:'199/month',
+        amount:'0',
         instructors: instructor_arr,
         level: course.level,
         expected_duration:`${course.expected_duration} ${course.expected_duration_unit}`,
         start_date:0,
         end_date:0,
-        language:'en'
+        language:'English',
+        title_tag: getTitleTag(course.title || course.subtitle)
       });
       i++;
     }
@@ -101,13 +136,13 @@ var course_udemy = async() =>{
         bio: instr.job_title
       }
     });
-    // console.log(name);
+    // console.log(base_url+course.url);
 
       all_courses.push({
         // id:`${i}_ude`,
         title: course.title,
         image: course.image_480x270,
-        link: base_url + course.link,
+        link: base_url + course.url,
         description:  `${(course.description) ? course.description: 'no description'}`,
         currency_unit: course.price.charAt(0),
         amount:course.price.substring(1),
@@ -115,7 +150,8 @@ var course_udemy = async() =>{
         expected_duration: `${(course.expected_ducation)?course.expected_ducation:0}`,
         start_date:0,
         end_date:0,
-        language:'en'
+        language:'English',
+        title_tag: getTitleTag(course.title)
       });
       i++;
     }
@@ -156,7 +192,8 @@ var course_iversity = async() => {
           level: course.knowledge_level,
           start_date: course.start_date,
           end_date: course.end_date,
-          language: course.language
+          language: course.language,
+          title_tag: getTitleTag(course.title, course.language)
         });
         courseCount++;
       });

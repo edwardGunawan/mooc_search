@@ -8,8 +8,8 @@
     "start": "node --inspect=0.0.0.0:9292 Server/server.js",
     "example": "nodemon --exec babel-node ./public/js/example.js",
     "test-connection": "docker exec ms-api \"node\" \"Server/SearchServices/connection.js\"",
-    "test-elastic":"docker exec ms-api \"node\" \"Server/SearchServices/bulkImport.js\"",
-    "test-search":"docker exec ms-api \"node\" \"Server/SearchServices/search.test.js\""
+    "test-elastic": "docker exec ms-api \"node\" \"Server/SearchServices/bulkImport.js\"",
+    "test-search": "docker exec ms-api \"node\" \"Server/SearchServices/search.test.js\""
   },
   "repository": {
     "type": "git",
@@ -38,6 +38,7 @@
     "request-promise": "^4.2.2",
     "sequelize": "^4.33.1",
     "sqlite3": "^3.1.13",
+    "stopword": "^0.1.9",
     "urijs": "^1.19.0"
   },
   "devDependencies": {

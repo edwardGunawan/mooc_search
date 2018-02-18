@@ -12,7 +12,7 @@ var search = async (options,offset=0) => {
             {
               multi_match:{
                 query:options,
-                fields:['title^3','title.edge_ngram','description^2','instructors.name','instructors.bio'],
+                fields:['title^3','title.edge_ngram','description^1','instructors.name','instructors.bio^1'],
                 operator:'and',
                 fuzziness:'3',
                 type:'most_fields' // search for the combination of the score of all

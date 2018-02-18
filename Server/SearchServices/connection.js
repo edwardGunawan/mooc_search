@@ -1,7 +1,7 @@
 var elasticsearch = require('elasticsearch');
 var port = 9200;
 var host = process.env.ES_HOST || 'localhost';
-var client = new elasticsearch.Client({ host :{host,port},log:'trace' });
+var client = new elasticsearch.Client({ host :{host,port}/*,log:'trace' */});
 const schema = require('./mapping.js');
 const settings = require('./settings.js');
 var jsonFile = require('../data/course.json');
@@ -54,6 +54,12 @@ var setup = {
   bulkImport : async () => {
     let bulkBody= [];
     jsonFile.forEach(item => {
+      let item_copy = {
+        ...item,
+        suggest:{
+          input: item.title_tag
+        }
+      };
       // action description
       bulkBody.push({
         index : {
@@ -61,8 +67,14 @@ var setup = {
           _type:type
         }
       });
+      // console.log('item tag', item.title_tag);
+
+      // console.log('item_copy', item_copy);
+
+
+      // console.log(`${item}`);
       // the document to index
-      bulkBody.push(item);
+      bulkBody.push(item_copy);
     });
 
     client.bulk({body:bulkBody}).then((response) => {
@@ -71,7 +83,7 @@ var setup = {
       response.items.forEach(item => {
         if(item.index && item.index.error) {
           console.log(++errorCount, item.index.error); // count the number of error
-          res.status(item.index.status).json(item.index.error);
+          console.log(item.index);
         }
       });
 
