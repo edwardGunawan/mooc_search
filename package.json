@@ -23,26 +23,28 @@
   "homepage": "https://github.com/edwardGunawan/mooc_search#readme",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "cheerio": "^1.0.0-rc.2",
+
     "dotenv": "^5.0.0",
     "elasticsearch": "^14.1.0",
     "express": "^4.16.2",
-    "express-joi-validation": "^0.2.1",
+    "express-joi": "^0.3.1",
     "file-system": "^2.2.2",
     "helmet": "^3.11.0",
     "joi": "^13.1.2",
-    "js-base64": "^2.4.3",
+
     "lodash": "^4.17.5",
-    "puppeteer": "^1.0.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "sequelize": "^4.33.1",
     "sqlite3": "^3.1.13",
-    "stopword": "^0.1.9",
     "urijs": "^1.19.0"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
-    "striptags": "^3.1.1"
+    "striptags": "^3.1.1",
+    "stopword": "^0.1.9",
+    "puppeteer": "^1.0.0",
+    "js-base64": "^2.4.3",
+    "cheerio": "^1.0.0-rc.2"
   }
 }

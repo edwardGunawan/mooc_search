@@ -1,7 +1,6 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-var validation = require('express-joi-validation');
-var joi = require('joi');
+var validate = require('express-joi');
 var helmet = require('helmet'); // sercure express app setting various http header
 var middleware = require('./middleware');
 var getSearch = require('./SearchServices/search.js'); // search functionality
@@ -12,7 +11,8 @@ var PORT = process.env.PORT || 3000;
 
 /************ middleware ******************/
 app.use(helmet());
-app.use(express.urlencoded());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
 // app.use(express.static('public'));
 // logging file
 app.use(middleware.logger);
@@ -21,7 +21,7 @@ app.use(middleware.logErrors);
 
 
 
-app.get('/search', async(req,res) => {
+app.get('/search', validate.joiValidate(middleware.search_validate),async(req,res) => {
   const {q, offset=0} = req.query;
   console.log(q);
   await getSearch(q,offset)
@@ -31,7 +31,7 @@ app.get('/search', async(req,res) => {
   .catch(e => res.send(e.message));
 });
 
-app.get('/suggest', async(req,res) => {
+app.get('/suggest',validate.joiValidate(middleware.suggest_validate),async(req,res) => {
   const {q} = req.query;
   try{
     const titles = await getSuggest(q);
