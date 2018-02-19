@@ -103,8 +103,8 @@ var course_udacity = async () => {
         expected_duration:`${course.expected_duration} ${course.expected_duration_unit}`,
         start_date:0,
         end_date:0,
-        language:'English',
-        title_tag: getTitleTag(course.title || course.subtitle)
+        language:'English'
+        // title_tag: getTitleTag(course.title || course.subtitle)
       });
       i++;
     }
@@ -150,8 +150,8 @@ var course_udemy = async() =>{
         expected_duration: `${(course.expected_ducation)?course.expected_ducation:0}`,
         start_date:0,
         end_date:0,
-        language:'English',
-        title_tag: getTitleTag(course.title)
+        language:'English'
+        // title_tag: getTitleTag(course.title)
       });
       i++;
     }
@@ -192,8 +192,8 @@ var course_iversity = async() => {
           level: course.knowledge_level,
           start_date: course.start_date,
           end_date: course.end_date,
-          language: course.language,
-          title_tag: getTitleTag(course.title, course.language)
+          language: course.language
+          // title_tag: getTitleTag(course.title, course.language)
         });
         courseCount++;
       });

@@ -75,8 +75,11 @@ module.exports = {
     },
     suggest:{
       type: 'completion',
-      analyzer:'simple',
-      search_analyzer:'simple'
+      analyzer:'autocomplete_analyzer', // index will be n_edgegram
+      search_analyzer:'standard', // put search will be standard so user will get the result
+      preserve_position_increments: false,
+      preserve_separators: false // getting rid of stopwords
+
     }
   }
 }

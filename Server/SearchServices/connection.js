@@ -57,7 +57,7 @@ var setup = {
       let item_copy = {
         ...item,
         suggest:{
-          input: item.title_tag
+          input: item.title
         }
       };
       // action description

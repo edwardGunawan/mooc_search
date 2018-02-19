@@ -4,7 +4,8 @@ var validation = require('express-joi-validation');
 var joi = require('joi');
 var helmet = require('helmet'); // sercure express app setting various http header
 var middleware = require('./middleware');
-var search = require('./SearchServices/search.js'); // search functionality
+var getSearch = require('./SearchServices/search.js'); // search functionality
+var getSuggest = require('./SearchServices/suggest.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -23,12 +24,18 @@ app.use(middleware.logErrors);
 app.get('/search', async(req,res) => {
   const {q, offset=0} = req.query;
   console.log(q);
-  await search(q,offset)
+  await getSearch(q,offset)
   .then(response =>{
     res.json(response);
   })
   .catch(e => res.send(e.message));
 });
+
+app.get('/suggest', async(req,res) => {
+  const {q} = req.query;
+  const titles = await getSuggest(q);
+  res.json(titles);
+})
 
 app.get('/', async (req,res) => {
   res.send('home from backend');
