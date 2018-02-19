@@ -11,10 +11,14 @@ module.exports = {
       // set query for both field and combine the score to create
       // better relevancy
       fields:{
-        edge_ngram: {
+        edge_ngram: { // edge_ngram
           type: 'text',
           analyzer:'autocomplete_analyzer',
           search_analyzer:'standard'
+        },
+        completion: { // suggester completion
+          type:'completion',
+          analyzer:'standard'
         }
       }
     },
@@ -26,9 +30,14 @@ module.exports = {
     },
     description: {
       type:'text',
-      analyzer:'autocomplete_analyzer',
-      search_analyzer:'standard',
-
+      analyzer:'standard',
+      fields: {
+        edge_ngram: {
+          type:'text',
+          analyzer:'autocomplete_analyzer',
+          search_analyzer:'standard'
+        }
+      }
     },
     currency_unit: {
       type:'text'
@@ -72,14 +81,14 @@ module.exports = {
     },
     language: {
       type:'text'
-    },
-    suggest:{
-      type: 'completion',
-      analyzer:'autocomplete_analyzer', // index will be n_edgegram
-      search_analyzer:'standard', // put search will be standard so user will get the result
-      preserve_position_increments: false,
-      preserve_separators: false // getting rid of stopwords
-
     }
+    // suggest:{ // when needed to construct completion suggestion on a specific field on all mapping
+    //   type: 'completion',
+    //   analyzer:'autocomplete_analyzer', // index will be n_edgegram
+    //   search_analyzer:'autocomplete_analyzer', // put search will be standard so user will get the result
+    //   preserve_position_increments: false,
+    //   preserve_separators: false // getting rid of stopwords
+    //
+    // }
   }
 }

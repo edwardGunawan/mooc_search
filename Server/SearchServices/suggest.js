@@ -8,11 +8,11 @@ var getSuggest = async (searchTerm) => {
         search_suggest:{ // name of the search_suggest
           prefix:searchTerm,
           completion:{ // type of suggestions
-            field:'suggest', // Name of the field to search for suggestion
+            field: 'title.completion', // Name of the field to search for suggestion
             size: 5, // number of suggestions to return
             skip_duplicates: true, // filter out doc with duplicates suggestions from the result
             fuzzy: {
-              fuzziness:2 // set fuzziness to 2
+              fuzziness:1 // set fuzziness to 2
             }
 
           }

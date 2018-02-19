@@ -55,10 +55,11 @@ var setup = {
     let bulkBody= [];
     jsonFile.forEach(item => {
       let item_copy = {
-        ...item,
-        suggest:{
-          input: item.title
-        }
+        ...item
+        // when there is a suggest field in mapping.js, completor suggestor for all field
+        // suggest:{
+        //   input: item.title
+        // }
       };
       // action description
       bulkBody.push({

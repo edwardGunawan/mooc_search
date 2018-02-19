@@ -33,8 +33,14 @@ app.get('/search', async(req,res) => {
 
 app.get('/suggest', async(req,res) => {
   const {q} = req.query;
-  const titles = await getSuggest(q);
-  res.json(titles);
+  try{
+    const titles = await getSuggest(q);
+    if(titles) res.json(titles);
+  } catch(e) {
+    res.status(500).json(e);
+  }
+
+
 })
 
 app.get('/', async (req,res) => {
