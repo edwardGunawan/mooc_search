@@ -1,4 +1,4 @@
 node_modules/
-.env
-data/course.json
-models/connection.js
+Services/GetCourseServices/.env
+Services/GetCourseServices/data/course.json
+Services/src/connection.js

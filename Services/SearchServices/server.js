@@ -2,9 +2,9 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var validate = require('express-joi');
 var helmet = require('helmet'); // sercure express app setting various http header
-var middleware = require('./middleware');
-var getSearch = require('./SearchServices/search.js'); // search functionality
-var getSuggest = require('./SearchServices/suggest.js');
+var middleware = require('./src/middleware');
+var getSearch = require('./src/search.js'); // search functionality
+var getSuggest = require('./src/suggest.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;

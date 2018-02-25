@@ -5,9 +5,16 @@
 version: '3'
 
 services:
-  api: #node.js app for backend application logic
-    container_name: ms-api
-    build: .
+  courses-db:
+    container_name: courses-db
+    build: ./Services/GetCourseServices
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: exit 0
+  backend: #node.js app for backend application logic
+    container_name: search-service
+    build:
     ports:
       - "3000:3000" # expose API port
       - "9229:9229" # Expose node process debug port (disable in production)
@@ -22,7 +29,7 @@ services:
     container_name: ms-frontend
     image: nginx
     volumes: #Serve local public dir
-      - ./public:/usr/share/nginx/html
+      - ./Public:/usr/share/nginx/html
     ports:
       - "8080:80" # frontend side for localhost:8080
 

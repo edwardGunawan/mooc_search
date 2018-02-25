@@ -4,7 +4,7 @@ var host = process.env.ES_HOST || 'localhost';
 var client = new elasticsearch.Client({ host :{host,port}/*,log:'trace' */});
 const schema = require('./mapping.js');
 const settings = require('./settings.js');
-var jsonFile = require('../data/course.json');
+var jsonFile = require('../../Static/data/course.json');
 
 /*
   mapping:
