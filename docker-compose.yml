@@ -5,57 +5,62 @@
 version: '3'
 
 services:
-  courses-db:
+  get-course-services:
     container_name: courses-db
-    build: ./Services/GetCourseServices
+    build:
+      context: ./Services/GetCourseServices
+    env_file:
+      - ./Services/GetCourseServices/.env
     ports:
       - "5433:5432"
     healthcheck:
-      test: exit 0
-  backend: #node.js app for backend application logic
-    container_name: search-service
-    build:
-    ports:
-      - "3000:3000" # expose API port
-      - "9229:9229" # Expose node process debug port (disable in production)
-    environment: # Set ENV vars
-      - NODE_ENV=local
-      - ES_HOST=elasticsearch
-      - PORT=3000
-    volumes: # Attach local data directory
-      - ./Server/data:/usr/src/app/data
+      test: ["CMD","curl","-f","http://localhost || exit 1"]
+    # command: node -e 'console.log(process.env);'
 
-  frontend: # Nginx server for frontend
-    container_name: ms-frontend
-    image: nginx
-    volumes: #Serve local public dir
-      - ./Public:/usr/share/nginx/html
-    ports:
-      - "8080:80" # frontend side for localhost:8080
-
-  elasticsearch: # elasticsearch instance
-    container_name: esSearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
-    volumes: # Persist es data in the separate "esdata" volume
-      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - esdata:/usr/share/elasticsearch/data
-    environment:
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - discovery.type=single-node
-    # control the limits for JVM mlock all
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    cap_add:
-      - IPC_LOCK
-    ports: #expose elasticsearch ports
-      - "9300:9300"
-      - "9200:9200"
-
-volumes: # Define separate volume for elasticsearch
-    esdata:
+#   backend: #node.js app for backend application logic
+#     container_name: search-service
+#     build: .
+#     ports:
+#       - "3000:3000" # expose API port
+#       - "9229:9229" # Expose node process debug port (disable in production)
+#     environment: # Set ENV vars
+#       - NODE_ENV=local
+#       - ES_HOST=elasticsearch
+#       - PORT=3000
+#     volumes: # Attach local data directory
+#       - ./Server/data:/usr/src/app/data
+#
+#   frontend: # Nginx server for frontend
+#     container_name: ms-frontend
+#     image: nginx
+#     volumes: #Serve local public dir
+#       - ./Public:/usr/share/nginx/html
+#     ports:
+#       - "8080:80" # frontend side for localhost:8080
+#
+#   elasticsearch: # elasticsearch instance
+#     container_name: esSearch
+#     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
+#     volumes: # Persist es data in the separate "esdata" volume
+#       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+#       - esdata:/usr/share/elasticsearch/data
+#     environment:
+#       - bootstrap.memory_lock=true
+#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#       - discovery.type=single-node
+#     # control the limits for JVM mlock all
+#     ulimits:
+#       memlock:
+#         soft: -1
+#         hard: -1
+#       nofile:
+#         soft: 65536
+#         hard: 65536
+#     cap_add:
+#       - IPC_LOCK
+#     ports: #expose elasticsearch ports
+#       - "9300:9300"
+#       - "9200:9200"
+#
+# volumes: # Define separate volume for elasticsearch
+#     esdata:
