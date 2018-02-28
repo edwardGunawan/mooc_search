@@ -1,6 +1,6 @@
 var {client,index,type} = require('./connection.js');
 
-var getSuggest = async (searchTerm) => {
+var getSuggest = async (searchTerm,index=index) => {
   const response = await client.search({
     index,
     body: {

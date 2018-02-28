@@ -1,7 +1,7 @@
-/*----------------------------
-  Testing search
------------------------------- */
-let search = require('../src/search.js');
+/*------------------------------
+  Testing Suggest
+  -----------------------------*/
+let getSuggest = require('../src/suggest.js');
 let chai = require('chai');
 let should = chai.should();
 let expect = chai.expect;
@@ -12,9 +12,8 @@ const test_index = 'test_index';
 const schema = require('../src/mapping.js');
 const settings = require('../src/settings.js');
 
-
-describe('search.js', () => {
-  beforeEach(`re-create ${test_index}`,async () => {
+describe('suggest.js', () => {
+  beforeEach(`creating ${test_index}`, async () => {
     // create a test_index index and content
     if(await client.indices.exists({index:test_index})){
       await client.indices.delete({index:test_index});
@@ -54,29 +53,23 @@ describe('search.js', () => {
     }
   });
 
-  it('writing \'java\' should return \'java\' or substring with \'java\'', async () => {
+  it('typing \'ja\' should return title starts with java or javaScript', async () => {
     try {
-      const resp = await search('java',0,test_index);
-      console.log('resp',resp);
-      let title_map = resp.map(obj => obj.title.toLowerCase());
-      console.log(title_map);
-      expect(resp).to.be.an('array');
-      let numSubstring = 0;
-      title_map.forEach((title) => {
-        if(title.indexOf('java')) numSubstring++;
-      })
-      expect(numSubstring).to.equal(3);
-
-
-    } catch (e) {
-      should.Throw(e.message);
+      const title_arr = await getSuggest('ja',test_index);
+      expect(title_arr).is.a('array');
+      // loop through array and see if there is a substring of java or javaScript
+      title_arr.forEach((title) => {
+        if(title.indexOf('jav') !== -1) should.Throw(e);
+      });
+    } catch(e) {
+      should.Throw(e);
     }
   });
 
-
-  it('should return the same input when insert \'jva\'');
-  // search({input:'jva'},0).then(response => {
-  //   console.log(response);
-  // }).catch(e => console.log(e.message));
+  after(`deleting ${test_index}`, async () => {
+    if(await client.indices.exists({index:test_index})){
+      await client.indices.delete({index: test_index})
+    }
+  });
 
 });

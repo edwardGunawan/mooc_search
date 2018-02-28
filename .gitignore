@@ -2,4 +2,6 @@ node_modules/
 Services/GetCourseServices/.env
 Services/GetCourseServices/data/course.json
 Services/GetCourseServices/data/course_test.json
-Services/src/connection.js
+Services/GetCourseServices/node_modules
+Services/SearchServices/src/connection.js
+Services/SearchServices/node_modules
