@@ -1,5 +1,5 @@
 var {client,index,type} = require('./connection.js');
-var search = async (options,offset=0) => {
+var search = async (options,offset=0,index=index) => {
   const response = await client.search({
     index,
     type,
