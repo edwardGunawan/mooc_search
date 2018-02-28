@@ -4,7 +4,7 @@ var host = process.env.ES_HOST || 'localhost';
 var client = new elasticsearch.Client({ host :{host,port}/*,log:'trace' */});
 const schema = require('./mapping.js');
 const settings = require('./settings.js');
-var jsonFile = require('../../Static/data/course.json');
+var jsonFile = require('../../GetCourseServices/data/course.json');
 
 /*
   mapping:
@@ -23,6 +23,7 @@ var setup = {
         const health = await client.cluster.health({});
         console.log(health);
         isConnected = true;
+        return health;
       } catch(err) {
         console.log('Connection failed, retrying ... ', err);
       }
@@ -30,28 +31,29 @@ var setup = {
   },
 
   checkIndices : async () => {
-    client.cat.indices({v:true}).then((response) => {
-      console.log(response);
+    return client.cat.indices({v:true}).then((response) => {
+      // console.log(response);
+      return response;
     }).catch(err => {
       console.log(err);
     });
   },
 
-  resetIndex: async () =>{
+  resetIndex: async (index=index) =>{
     if(await client.indices.exists({index})){
       await client.indices.delete({index});
     }
     await client.indices.create({ index, body:settings });
-    console.log(`Checking Indices =====`);
+    // console.log(`Checking Indices =====`);
     await setup.checkIndices();
-    await setup.putMapping();
+    await setup.putMapping(index);
   },
 
-  putMapping: async () =>{
+  putMapping: async (index=index) =>{
     return client.indices.putMapping({ index, type, body : schema });
   },
 
-  bulkImport : async () => {
+  bulkImport : async (jsonFile=jsonFile, index=index) => {
     let bulkBody= [];
     jsonFile.forEach(item => {
       let item_copy = {
@@ -78,7 +80,7 @@ var setup = {
       bulkBody.push(item_copy);
     });
 
-    client.bulk({body:bulkBody}).then((response) => {
+    return client.bulk({refresh: 'wait_for', body:bulkBody}).then((response) => {
       console.log('here in response')
       let errorCount = 0;
       response.items.forEach(item => {
@@ -100,4 +102,4 @@ var setup = {
 
 // setup.checkConnection();
 
-module.exports = {client, index,type, setup};
+module.exports = {client, jsonFile, index,type, setup};

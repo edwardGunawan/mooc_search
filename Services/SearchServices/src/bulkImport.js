@@ -1,11 +1,11 @@
-var {setup:{checkConnection, resetIndex,bulkImport}} = require('./connection.js');
+var {index, jsonFile, setup:{checkConnection, resetIndex,bulkImport}} = require('./connection.js');
 
 
 
 try {
   checkConnection()
-  .then(() => resetIndex())
-  .then(() => bulkImport())
+  .then(() => resetIndex(index))
+  .then(() => bulkImport(jsonFile,index))
   .catch(e => console.error(`error message : ${e}`));
   // bulkImport().catch(e => console.error(e));
 
