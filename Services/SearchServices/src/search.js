@@ -1,5 +1,8 @@
-var {client,index,type} = require('./connection.js');
-var search = async (options,offset=0,index=index) => {
+var {client,default_index,type} = require('./connection.js');
+
+var search = async (options,offset = 0,index = default_index) => {
+  // name for destructor should be the same as module.exports or else it will show undefined
+  // console.log('index when no value is pass in',index);
   const response = await client.search({
     index,
     type,

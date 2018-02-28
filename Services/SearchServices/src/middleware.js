@@ -14,6 +14,19 @@ module.exports = {
     next(err);
   },
 
+  errorHandler: async(err,req,res,next) => {
+    if(err.error.isJoi) {
+      // we had a joi error lets return custom 400 response
+      res.status(400).json({
+        type: err.type,
+        message: err.error.toString()
+      });
+    } else {
+      // pass on to another error handler
+      next(err);
+    }
+  },
+
   // input validation
   search_validate: {
     q: joi.string().max(60).required(),
@@ -21,7 +34,7 @@ module.exports = {
   },
 
   suggest_validate: {
-    q:joi.string().max(60).required()
+    q:joi.string().max(60)
   }
 
 }

@@ -5,6 +5,7 @@ var helmet = require('helmet'); // sercure express app setting various http head
 var middleware = require('./src/middleware');
 var getSearch = require('./src/search.js'); // search functionality
 var getSuggest = require('./src/suggest.js');
+var sys = require('util');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -17,34 +18,32 @@ app.use(bodyParser.json());
 // logging file
 app.use(middleware.logger);
 app.use(middleware.logErrors);
+app.use(middleware.errorHandler);
 
 
 
 
-app.get('/search', validate.joiValidate(middleware.search_validate),async(req,res) => {
+app.get('/search', validate.joiValidate(middleware.search_validate),async (req,res) => {
   const {q, offset=0} = req.query;
-  console.log(q);
   await getSearch(q,offset)
   .then(response =>{
-    res.json(response);
+    res.status(200).json(response);
   })
-  .catch(e => res.send(e.message));
+  .catch(e => res.status(404).send(e.message));
 });
 
 app.get('/suggest',validate.joiValidate(middleware.suggest_validate),async(req,res) => {
   const {q} = req.query;
   try{
     const titles = await getSuggest(q);
-    if(titles) res.json(titles);
+    if(titles) res.status(200).json(titles);
   } catch(e) {
-    res.status(500).json(e);
+    res.status(400).json(e);
   }
-
-
-})
+});
 
 app.get('/', async (req,res) => {
-  res.send('home from backend');
+  res.status(200).send('home from backend');
 });
 
 
@@ -54,3 +53,6 @@ app.listen(PORT, function(err) {
   if(err) console.error(err);
   console.log('App Listening to', PORT);
 });
+
+
+module.exports = app;

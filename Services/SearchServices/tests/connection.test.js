@@ -6,6 +6,7 @@ let should = chai.should();
 let expect = chai.expect;
 let elasticsearch = require('elasticsearch');
 let jsonFile = require('../../GetCourseServices/data/course_test.json');
+let helper = require('./helper.test.js');
 
 const test_index = 'test_index';
 const schema = require('../src/mapping.js');
@@ -14,11 +15,7 @@ const settings = require('../src/settings.js');
 
 describe('elasticsearch', () => {
   beforeEach(`re-create ${test_index}`,async () => {
-    // create a test_index index and content
-    if(await client.indices.exists({index:test_index})){
-      await client.indices.delete({index:test_index});
-    }
-    return client.indices.create({ index:test_index, body:settings });
+    await helper.createWithoutBulk();
   });
 
 
@@ -37,7 +34,7 @@ describe('elasticsearch', () => {
 
   describe('checkIndices', () => {
     before(async () => {
-      await client.indices.putMapping({index:test_index,type,body:schema});
+      await helper.createMappingOnly();
     });
 
     it('should print indices health status', async () => {
@@ -84,38 +81,8 @@ describe('elasticsearch', () => {
 
   describe('resetIndex', () => {
     beforeEach(`Creating bulk import on ${test_index}`, async () => {
-      if(await client.indices.exists({index:test_index})){
-        await client.indices.putMapping({index:test_index,type,body:schema});
-        let bulkBody= [];
-        jsonFile.forEach(item => {
-          let item_copy = {
-            ...item
-          };
-          // action description
-          bulkBody.push({
-            index : {
-              _index:test_index,
-              _type:type
-            }
-          });
-
-          bulkBody.push(item);
-        });
-
-        await client.bulk({refresh:'wait_for',body:bulkBody})
-        .then((response) => {
-            let errorCount = 0;
-            response.items.forEach(item => {
-              if(item.index && item.index.error) {
-                console.log(++errorCount, item.index.error); // count the number of error
-                console.log(item.index);
-              }
-            });
-            console.log(` Successfully indexed ${jsonFile.length - errorCount} out of ${jsonFile.length} items`);
-        }).catch(err => {
-          console.log(err);
-        });
-      }
+      await helper.createMappingOnly();
+      await helper.bulkImportOnly()
     });
 
     it('should first exist some content in index', async () => {
@@ -141,9 +108,7 @@ describe('elasticsearch', () => {
 
   describe('bulkImport', () => {
     beforeEach(`creating mapping for ${test_index} before bulkImport`, async () => {
-      if(await client.indices.exists({index:test_index})){
-        await client.indices.putMapping({index:test_index,type,body:schema});
-      }
+      await helper.createMappingOnly();
     });
 
     it(`should bulk import test_json file to ${test_index}`, async () => {
@@ -162,9 +127,6 @@ describe('elasticsearch', () => {
 
 
   after(`deleting ${test_index}`,async () => {
-    // delete test_index after finishing
-    if(await client.indices.exists({index:test_index})){
-      return client.indices.delete({index:test_index});
-    }
+    await helper.deleteIndex();
   });
 });
