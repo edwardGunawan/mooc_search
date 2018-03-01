@@ -5,7 +5,7 @@ var helmet = require('helmet'); // sercure express app setting various http head
 var middleware = require('./src/middleware');
 var getSearch = require('./src/search.js'); // search functionality
 var getSuggest = require('./src/suggest.js');
-var sys = require('util');
+
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -14,7 +14,7 @@ var PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
-// app.use(express.static('public'));
+
 // logging file
 app.use(middleware.logger);
 app.use(middleware.logErrors);

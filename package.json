@@ -6,10 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node --inspect=0.0.0.0:9292 Server/server.js",
-    "example": "nodemon --exec babel-node ./public/js/example.js",
-    "test-connection": "docker exec ms-api \"node\" \"Server/SearchServices/connection.js\"",
-    "test-elastic": "docker exec ms-api \"node\" \"Server/SearchServices/bulkImport.js\"",
-    "test-search": "docker exec ms-api \"node\" \"Server/SearchServices/search.test.js\""
+    "example": "nodemon --exec babel-node ./public/js/example.js"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,8 @@
 # frontend and backend port therefore, users request won't get sent to backend and messed it up
 # different port where there are mc-api run its own server
 # mc-front-end will run its own server on its own port, and esSearch
+# each of the dockerfile, and path in the volume is like a VM where you get to
+# have the value from the root directory, and each container is like its own VM machine
 
 version: '3'
 
@@ -15,52 +17,56 @@ services:
       - "5433:5432"
     healthcheck:
       test: ["CMD","curl","-f","http://localhost || exit 1"]
-    # command: node -e 'console.log(process.env);'
+    # command: node -e 'console.log(__dirname);'
 
-#   backend: #node.js app for backend application logic
-#     container_name: search-service
-#     build: .
-#     ports:
-#       - "3000:3000" # expose API port
-#       - "9229:9229" # Expose node process debug port (disable in production)
-#     environment: # Set ENV vars
-#       - NODE_ENV=local
-#       - ES_HOST=elasticsearch
-#       - PORT=3000
-#     volumes: # Attach local data directory
-#       - ./Server/data:/usr/src/app/data
+  search-services: #node.js app for backend application logic
+    container_name: search-service
+    build: ./Services/SearchServices
+    ports:
+      - "3000:3000" # expose API port
+      - "9229:9229" # Expose node process debug port (disable in production)
+    volumes: # Attach local data directory to persist(save) data
+      - "./Services/SearchServices:/usr/src/app"
+      - "./Services/GetCourseServices/data:/usr/src/app/data" # your hostFilePath:containerFilePath
+      - "./Services/SearchServices/package.json:/usr/src/package.json"
+    environment: # Set ENV vars
+      - NODE_ENV=local
+      - ES_HOST=elasticsearch
+      - PORT=3000
+      - jsonlocFile=../data/course.json
+
+
+  frontend: # Nginx server for frontend
+    container_name: ms-frontend
+    image: nginx
+    volumes: #Serve local public dir
+      - ./Public:/usr/share/nginx/html
+    ports:
+      - "8080:80" # frontend side for localhost:8080
 #
-#   frontend: # Nginx server for frontend
-#     container_name: ms-frontend
-#     image: nginx
-#     volumes: #Serve local public dir
-#       - ./Public:/usr/share/nginx/html
-#     ports:
-#       - "8080:80" # frontend side for localhost:8080
-#
-#   elasticsearch: # elasticsearch instance
-#     container_name: esSearch
-#     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.1
-#     volumes: # Persist es data in the separate "esdata" volume
-#       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-#       - esdata:/usr/share/elasticsearch/data
-#     environment:
-#       - bootstrap.memory_lock=true
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#       - discovery.type=single-node
-#     # control the limits for JVM mlock all
-#     ulimits:
-#       memlock:
-#         soft: -1
-#         hard: -1
-#       nofile:
-#         soft: 65536
-#         hard: 65536
-#     cap_add:
-#       - IPC_LOCK
-#     ports: #expose elasticsearch ports
-#       - "9300:9300"
-#       - "9200:9200"
-#
-# volumes: # Define separate volume for elasticsearch
-#     esdata:
+  elasticsearch: # elasticsearch instance
+    container_name: esSearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    volumes: # Persist es data in the separate "esdata" volume
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+    # control the limits for JVM mlock all
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    ports: #expose elasticsearch ports
+      - "9300:9300"
+      - "9200:9200"
+
+volumes: # to share data between containers
+    esdata:
