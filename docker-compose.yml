@@ -20,7 +20,7 @@ services:
     # command: node -e 'console.log(__dirname);'
 
   search-services: #node.js app for backend application logic
-    container_name: search-service
+    container_name: search-services
     build: ./Services/SearchServices
     ports:
       - "3000:3000" # expose API port
@@ -36,11 +36,11 @@ services:
       - jsonlocFile=../data/course.json
 
 
-  frontend: # Nginx server for frontend
-    container_name: ms-frontend
+  web-services: # Nginx server for frontend
+    container_name: web-services
     image: nginx
     volumes: #Serve local public dir
-      - ./Public:/usr/share/nginx/html
+      - ./Services/WebServices/src/Public:/usr/share/nginx/html
     ports:
       - "8080:80" # frontend side for localhost:8080
 #
