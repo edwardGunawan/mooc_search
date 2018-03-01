@@ -6,7 +6,8 @@ let chai = require('chai');
 let should = chai.should();
 let expect = chai.expect;
 let {client,type,setup} = require('../src/connection.js');
-let jsonFile = require('../../GetCourseServices/data/course_test.json');
+const jsonTestFile = process.env.jsonTestFile || '../../GetCourseServices/data/course_test.json';
+let jsonFile = require(jsonTestFile);
 let helper = require('./helper.test.js');
 
 const test_index = 'test_index';

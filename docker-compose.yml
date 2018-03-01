@@ -17,7 +17,7 @@ services:
       - "5433:5432"
     healthcheck:
       test: ["CMD","curl","-f","http://localhost || exit 1"]
-    # command: node -e 'console.log(__dirname);'
+    command: 'true'
 
   search-services: #node.js app for backend application logic
     container_name: search-services
@@ -29,20 +29,27 @@ services:
       - "./Services/SearchServices:/usr/src/app"
       - "./Services/GetCourseServices/data:/usr/src/app/data" # your hostFilePath:containerFilePath
       - "./Services/SearchServices/package.json:/usr/src/package.json"
+    depends_on: # tell docker compose to also starts other services if this services is started
+      - elasticsearch
     environment: # Set ENV vars
       - NODE_ENV=local
       - ES_HOST=elasticsearch
       - PORT=3000
       - jsonlocFile=../data/course.json
+      - jsonTestFile=../data/course_test.json
 
 
   web-services: # Nginx server for frontend
     container_name: web-services
     image: nginx
+    build: ./Services/WebServices
     volumes: #Serve local public dir
-      - ./Services/WebServices/src/Public:/usr/share/nginx/html
+      - './services/WebServices:/usr/src/app'
+      - '/usr/src/app/node_modules'
+    environment:
+      - NODE_ENV=development
     ports:
-      - "8080:80" # frontend side for localhost:8080
+      - "3700:3701" # frontend side for localhost:8080
 #
   elasticsearch: # elasticsearch instance
     container_name: esSearch

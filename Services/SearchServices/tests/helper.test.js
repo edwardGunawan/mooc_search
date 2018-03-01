@@ -1,5 +1,6 @@
 let {client,type,setup} = require('../src/connection.js');
-let jsonFile = require('../../GetCourseServices/data/course_test.json');
+const jsonTestFile = process.env.jsonTestFile || '../../GetCourseServices/data/course_test.json';
+let jsonFile = require(jsonTestFile);
 
 const test_index = 'test_index';
 const schema = require('../src/mapping.js');
