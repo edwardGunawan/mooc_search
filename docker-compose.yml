@@ -39,17 +39,13 @@ services:
       - jsonTestFile=../data/course_test.json
 
 
-  web-services: # Nginx server for frontend
+  web-services: # Nginx server for frontend and backend is express
     container_name: web-services
     image: nginx
-    build: ./Services/WebServices
     volumes: #Serve local public dir
-      - './services/WebServices:/usr/src/app'
-      - '/usr/src/app/node_modules'
-    environment:
-      - NODE_ENV=development
+      - ./Services/WebServices/public:/usr/share/nginx/html
     ports:
-      - "3700:3701" # frontend side for localhost:8080
+      - "8080:80" # forward frontend side for localhost:8080
 #
   elasticsearch: # elasticsearch instance
     container_name: esSearch

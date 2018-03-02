@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --inspect=0.0.0.0:9292 Server/server.js",
+    "start": "node --inspect=0.0.0.0:9292 Services/SearchServices/server.js",
     "example": "nodemon --exec babel-node ./public/js/example.js"
   },
   "repository": {
