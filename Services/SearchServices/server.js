@@ -5,20 +5,26 @@ var helmet = require('helmet'); // sercure express app setting various http head
 var middleware = require('./src/middleware');
 var getSearch = require('./src/search.js'); // search functionality
 var getSuggest = require('./src/suggest.js');
+var cors = require('cors');
 
 
 var app = express();
 var PORT = process.env.PORT || 3000;
 
 /************ middleware ******************/
+
 app.use(helmet());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 // logging file
+// enable CORS
+app.use(cors());
 app.use(middleware.logger);
 app.use(middleware.logErrors);
 app.use(middleware.errorHandler);
+
+
 
 
 
@@ -29,16 +35,16 @@ app.get('/search', validate.joiValidate(middleware.search_validate),async (req,r
   .then(response =>{
     res.status(200).json(response);
   })
-  .catch(e => res.status(404).send(e.message));
+  .catch(e => res.status(500).send(e.message));
 });
 
 app.get('/suggest',validate.joiValidate(middleware.suggest_validate),async(req,res) => {
-  const {q} = req.query;
+  const {q=''} = req.query;
   try{
     const titles = await getSuggest(q);
     if(titles) res.status(200).json(titles);
   } catch(e) {
-    res.status(400).json(e);
+    res.status(500).json(e);
   }
 });
 

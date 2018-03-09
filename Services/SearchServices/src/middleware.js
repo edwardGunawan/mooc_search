@@ -34,7 +34,7 @@ module.exports = {
   },
 
   suggest_validate: {
-    q:joi.string().max(60)
+    q:joi.string().allow('')
   }
 
 }
