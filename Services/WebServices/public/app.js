@@ -1,14 +1,79 @@
 // https://jsfiddle.net/yyx990803/xgrjzsup/
 
+// Global variable
+Vue.use(Buefy.default)
+// <section>
+//   <b-autocomplete
+//             rounded
+//             v-model="searchTerm"
+//             :data="filteredDataArray"
+//             placeholder="e.g. jQuery"
+//             icon="magnify"
+//             @select="option => selected = option">
+//             <template slot="empty">No results found</template>
+//   </b-autocomplete>
+// </section>
+// <input type="text" v-model="searchTerm" v-on:keyup="onSearchInput()" placeholder="Java">
+//   here {{ autoCompleteResult }}
+// </div>
+
+
 // searchbar components
+// keyup.enter.native to get the eventhandler to work on autocomplete
 const SearchBar = Vue.component('search-bar', {
   template:`
-    <input type="text" v-model="searchTerm" v-on:keyup="onSearchInput()" placeholder="Java">
+  <section class="search-bar">
+    <b-autocomplete
+              rounded
+              v-model="searchTerm"
+              :data="autoCompleteResult"
+              :loading="isFetching"
+              placeholder="e.g. jQuery"
+              icon="magnify"
+              @input="onSearchInput"
+              @keyup.enter.native="onSearch()"
+              @select="option => selected = option">
+              <template slot="empty">No results found</template>
+    </b-autocomplete>
+  </section>
   `,
-  props:['searchTerm'],
+  props:['searchTerm','setSearchTerm','baseUrl','handleSuggest','onSearch'],
+  data () {
+    return {
+      autoCompleteResult: [],
+      isFetching:false,
+      searchDebounce: null,
+      selected: null
+    }
+  },
+  watch: {
+    // click on term to go to submit
+    selected (newTerm, oldTerm) {
+      console.log(`${newTerm} new Term and old term ${oldTerm}`);
+      this.setSearchTerm(newTerm);
+      this.onSearch();
+    }
+  },
   methods: {
-    onSearchInput () {
-      this.$parent.handleSearchInput(this.searchTerm)
+    // no arrow function
+    // debounce search input by 100ms
+    async onSearchInput () {
+      clearTimeout(this.searchDeboucne);
+      this.searchDebounce = setTimeout(async () => {
+        this.searchOffset = 0;
+        return this.onSuggest(this.searchTerm);
+      },100);
+    },
+
+    async onSuggest (term = '') {
+      try {
+        isFetching = true;
+        this.autoCompleteResult = await this.handleSuggest(term);
+        isFetching = false;
+      }catch (e) {
+        isFetching = false;
+        console.error(e);
+      }
     }
   }
 });
@@ -16,29 +81,25 @@ const SearchBar = Vue.component('search-bar', {
 
 // Submit Button (triggered Search)
 const Submit = Vue.component('submit', {
-  template:`
-    <button type="button" name="Submit" v-on:click="onSearch()">Submit</button>
-  `,
-  methods: {
-    onSearch() {
-      this.$parent.handleSearch();
-    }
-  }
-})
+  // template:`
+  //   <button type="button" class="button is-light is-medium" name="Submit" v-on:click="onSearch()">Submit</button>
+  // `,
+  props:['onSearch']
+});
 
 // FrontPageContainer
 const FrontPageContainer = Vue.component('front-page-container',{
   // need to defined the template like in react
   template: `
-    <div>
+    <div class="container is-fluid front-page">
       <label class="label hero-title">Mooc_Search</label>
-      <search-bar :searchTerm="searchTerm" :onSearchInput="handleSearchInput"></search-bar>
-      <submit :onSearch="handleSearch"></submit>
-      {{ autoCompleteResult }}
+      <search-bar :searchTerm="searchTerm" :setSearchTerm="setSearchTerm" :baseUrl="baseUrl" :handleSuggest="handleSuggest" :onSearch="handleSearch"></search-bar>
+      <submit :onSearch="handleSearch" :searchTerm="searchTerm" ></submit>
     </div>`,
   data() {
     return {
       searchTerm:'',
+      selected: null, // select the term
       searchOffset:0,
       baseUrl: 'http://localhost:3000',
       searchDebounce: null,
@@ -49,17 +110,22 @@ const FrontPageContainer = Vue.component('front-page-container',{
   methods: {
     // no arrow function
     // debounce search input by 100ms
-    handleSearchInput (searchTerm) {
-      this.searchTerm = searchTerm;
-      clearTimeout(this.searchDeboucne);
-      this.searchDebounce = setTimeout(async () => {
-        this.searchOffset = 0;
-        this.searchResult = await this.onSuggest(this.searchTerm);
-      },100);
+    // async handleSearchInput (searchTerm) {
+    //   this.searchTerm = searchTerm;
+    //   clearTimeout(this.searchDeboucne);
+    //   this.searchDebounce = setTimeout(async () => {
+    //     this.searchOffset = 0;
+    //     return this.onSuggest(this.searchTerm);
+    //   },100);
+    // },
+    async setSearchTerm(term = ''){
+      this.searchTerm = term;
     },
-
-    async onSuggest (term = '') {
+    async handleSuggest (term = '') {
       try {
+        console.log(`in handleSuggest ${term}`);
+        this.searchTerm = term;
+        console.log(`searchTerm ${this.searchTerm}`);
         let response = await axios({
           method: 'get',
           url:`${this.baseUrl}/suggest`,
@@ -67,26 +133,17 @@ const FrontPageContainer = Vue.component('front-page-container',{
             q: term
           }
         });
-        this.autoCompleteResult = response.data;
-        console.log('in parent autoCompleteResult', this.autoCompleteResult);
-
+        return response.data;
+        // console.log('in parent autoCompleteResult', this.autoCompleteResult);
       }catch (e) {
         console.error(e);
       }
     },
 
     async handleSearch() {
+      console.log(`in handle search ${this.searchTerm} and len ${this.searchTerm.length}`);
       if(this.searchTerm.length !== 0) {
         try {
-          // console.log(`${this.$router}`);
-          // let response = await axios({
-          //   method: 'get',
-          //   url: `${this.baseUrl}/search`,
-          //   params: {
-          //     q: this.searchTerm
-          //   }
-          // });
-          // this.searchResult = response.data;
           console.log('here in front page component');
           // push router to /search
           this.$router.push({path:'/search', query:{q:this.searchTerm }});
@@ -104,16 +161,35 @@ const FrontPageContainer = Vue.component('front-page-container',{
 const SearchContainer = Vue.component('search-container',{
   template:`
   <div>
-    <h1> Welcome to Search Template </h1>
-    <p> search term is {{ $route.query.q }}</p>
-    <search-bar :searchTerm="searchTerm" :onSearchInput="handleSearchInput"></search-bar>
-    <submit :onSearch="handleSearch"></submit>
+    <nav class="columns">
+      <div class="column is-1 is-one-third-mobile">
+        <label class="label hero-subtitle">Mooc_Search</label>
+      </div>
+      <div class="column is-11 is-two-third-mobile">
+        <search-bar :searchTerm="searchTerm" :setSearchTerm="setSearchTerm" :baseUrl="baseUrl" :handleSuggest="handleSuggest" :onSearch="handleSearch"></search-bar>
+      </div>
+    </nav>
+
     <ul>
       <li v-for="res in searchResult">
-        <a :href="res.link" target="_blank">{{ res.title }}</a>
-        <p> {{ res.currency }} </p>
-        <p> {{ res.description }} </p>
-        <img :src="res.image" :alt="res.title"/>
+        <a :href="res.link" target="_blank">
+          <p>{{ res.title }}</p>
+          <div class="media-left">
+            <figure class="image is-64x64">
+              <img :src="res.image" :alt="res.title"/>
+            </figure>
+          </div>
+          <div class="media-content">
+            <div class="content">
+              <p v-html="res.highlight.description">
+              </p>
+            </div>
+          </div>
+
+
+        </a>
+
+
       </li>
     </ul>
   </div>
@@ -123,9 +199,7 @@ const SearchContainer = Vue.component('search-container',{
       searchTerm:'',
       searchOffset:0,
       baseUrl: 'http://localhost:3000',
-      searchDebounce: null,
-      searchResult: [],
-      autoCompleteResult: []
+      searchResult: []
     }
   },
   created () {
@@ -133,19 +207,13 @@ const SearchContainer = Vue.component('search-container',{
     this.handleSearch();
   },
   methods: {
-    // no arrow function
-    // debounce search input by 100ms
-    handleSearchInput (searchTerm) {
-      this.searchTerm = searchTerm;
-      clearTimeout(this.searchDeboucne);
-      this.searchDebounce = setTimeout(async () => {
-        this.searchOffset = 0;
-        this.searchResult = await this.onSuggest(this.searchTerm);
-      },100);
+    async setSearchTerm(term = ''){
+      this.searchTerm = term;
     },
-
-    async onSuggest (term = '') {
+    async handleSuggest (term = '') {
       try {
+        console.log(`in handleSuggest ${term}`);
+        this.searchTerm = term;
         let response = await axios({
           method: 'get',
           url:`${this.baseUrl}/suggest`,
@@ -153,9 +221,8 @@ const SearchContainer = Vue.component('search-container',{
             q: term
           }
         });
-        this.autoCompleteResult = response.data;
-        console.log('in parent autoCompleteResult', this.autoCompleteResult);
-
+        return response.data;
+        // console.log('in parent autoCompleteResult', this.autoCompleteResult);
       }catch (e) {
         console.error(e);
       }

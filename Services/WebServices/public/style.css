@@ -1,3 +1,21 @@
+.front-page {
+  margin:auto;
+  width: 50%;
+}
 .hero-title {
   font-size:40px;
+  text-align: center
+}
+
+nav.columns {
+  margin:2%;
+}
+.hero-subtitle {
+  font-size:30px;
+  text-align: center;
+}
+
+.search-bar {
+  width:80%;
+  margin:auto;
 }
