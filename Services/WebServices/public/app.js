@@ -2,21 +2,6 @@
 
 // Global variable
 Vue.use(Buefy.default)
-// <section>
-//   <b-autocomplete
-//             rounded
-//             v-model="searchTerm"
-//             :data="filteredDataArray"
-//             placeholder="e.g. jQuery"
-//             icon="magnify"
-//             @select="option => selected = option">
-//             <template slot="empty">No results found</template>
-//   </b-autocomplete>
-// </section>
-// <input type="text" v-model="searchTerm" v-on:keyup="onSearchInput()" placeholder="Java">
-//   here {{ autoCompleteResult }}
-// </div>
-
 
 // searchbar components
 // keyup.enter.native to get the eventhandler to work on autocomplete
@@ -31,7 +16,7 @@ const SearchBar = Vue.component('search-bar', {
               placeholder="e.g. jQuery"
               icon="magnify"
               @input="onSearchInput"
-              @keyup.enter.native="onSearch()"
+              @keydown.enter.native="onSearch()"
               @select="option => selected = option">
               <template slot="empty">No results found</template>
     </b-autocomplete>
@@ -78,13 +63,51 @@ const SearchBar = Vue.component('search-bar', {
   }
 });
 
-
 // Submit Button (triggered Search)
 const Submit = Vue.component('submit', {
-  // template:`
-  //   <button type="button" class="button is-light is-medium" name="Submit" v-on:click="onSearch()">Submit</button>
-  // `,
+  template:`
+    <button type="button" class="button is-light is-medium" name="Submit" v-on:click="onSearch()">Submit</button>
+  `,
   props:['onSearch']
+});
+
+const Pagination = Vue.component('pagination', {
+  template:`
+    <section>
+        <b-pagination
+            :total="numHits"
+            :current.sync="current"
+            :order="order"
+            :size="size"
+            :simple="isSimple"
+            :rounded="isRounded"
+            @change="val => valChanged = val"
+            :per-page="perPage">
+        </b-pagination>
+    </section>
+  `,
+  props:['numHits','searchOffset','handlePageResult'],
+  data () {
+    return {
+      order: '',
+      size: '',
+      current: 1,
+      isSimple: false,
+      isRounded: true,
+      perPage:10,
+      valChanged:1
+    }
+  },
+  watch: {
+    valChanged(newVal, oldVal){
+      this.handlePageResult(newVal,this.perPage);
+      this.current = newVal;
+      console.log(this.current);
+      // console.log(newVal*this.searchOffset);
+    }
+  },
+  methods: {
+  }
 });
 
 // FrontPageContainer
@@ -94,7 +117,6 @@ const FrontPageContainer = Vue.component('front-page-container',{
     <div class="container is-fluid front-page">
       <label class="label hero-title">Mooc_Search</label>
       <search-bar :searchTerm="searchTerm" :setSearchTerm="setSearchTerm" :baseUrl="baseUrl" :handleSuggest="handleSuggest" :onSearch="handleSearch"></search-bar>
-      <submit :onSearch="handleSearch" :searchTerm="searchTerm" ></submit>
     </div>`,
   data() {
     return {
@@ -108,16 +130,6 @@ const FrontPageContainer = Vue.component('front-page-container',{
     }
   },
   methods: {
-    // no arrow function
-    // debounce search input by 100ms
-    // async handleSearchInput (searchTerm) {
-    //   this.searchTerm = searchTerm;
-    //   clearTimeout(this.searchDeboucne);
-    //   this.searchDebounce = setTimeout(async () => {
-    //     this.searchOffset = 0;
-    //     return this.onSuggest(this.searchTerm);
-    //   },100);
-    // },
     async setSearchTerm(term = ''){
       this.searchTerm = term;
     },
@@ -141,7 +153,6 @@ const FrontPageContainer = Vue.component('front-page-container',{
     },
 
     async handleSearch() {
-      console.log(`in handle search ${this.searchTerm} and len ${this.searchTerm.length}`);
       if(this.searchTerm.length !== 0) {
         try {
           console.log('here in front page component');
@@ -162,36 +173,43 @@ const SearchContainer = Vue.component('search-container',{
   template:`
   <div>
     <nav class="columns">
-      <div class="column is-1 is-one-third-mobile">
-        <label class="label hero-subtitle">Mooc_Search</label>
+      <div class="column is-3 is-one-third-mobile">
+        <label class="label hero-subtitle" @click="back()">Mooc_Search</label>
       </div>
-      <div class="column is-11 is-two-third-mobile">
-        <search-bar :searchTerm="searchTerm" :setSearchTerm="setSearchTerm" :baseUrl="baseUrl" :handleSuggest="handleSuggest" :onSearch="handleSearch"></search-bar>
+      <div class="column is-7 is-two-third-mobile">
+        <search-bar
+          :searchTerm="searchTerm"
+          :setSearchTerm="setSearchTerm"
+          :baseUrl="baseUrl"
+          :handleSuggest="handleSuggest"
+          :onSearch="handleSearch"></search-bar>
       </div>
     </nav>
 
     <ul>
       <li v-for="res in searchResult">
-        <a :href="res.link" target="_blank">
-          <p>{{ res.title }}</p>
-          <div class="media-left">
-            <figure class="image is-64x64">
-              <img :src="res.image" :alt="res.title"/>
-            </figure>
-          </div>
-          <div class="media-content">
-            <div class="content">
-              <p v-html="res.highlight.description">
-              </p>
+        <div class="box box-container">
+          <article class="media">
+            <div class="media-left">
+              <figure class="image is-64x64">
+                <img :src="res.image" :alt="res.title"/>
+              </figure>
             </div>
-          </div>
-
-
-        </a>
-
-
+            <div class="media-content">
+              <div class="content">
+                <a target="_blank" :href="res.link"><strong> {{ res.title }} </strong></a>
+                <small>{{ res.currency }}</small>
+                <p>{{ res.language }}</p>
+                <div class="subtitle" v-html="res.description"></div>
+              </div>
+            </div>
+          </article>
+        </div>
       </li>
     </ul>
+    <pagination :numHits="numHits" :searchOffset="searchOffset"
+      :handlePageResult="handlePageResult"
+      ></pagination>
   </div>
   `,
   data() {
@@ -199,7 +217,8 @@ const SearchContainer = Vue.component('search-container',{
       searchTerm:'',
       searchOffset:0,
       baseUrl: 'http://localhost:3000',
-      searchResult: []
+      searchResult: [],
+      numHits: null // total search result found
     }
   },
   created () {
@@ -209,6 +228,9 @@ const SearchContainer = Vue.component('search-container',{
   methods: {
     async setSearchTerm(term = ''){
       this.searchTerm = term;
+    },
+    back() {
+      this.$router.push({path:'/'});
     },
     async handleSuggest (term = '') {
       try {
@@ -237,21 +259,38 @@ const SearchContainer = Vue.component('search-container',{
             method: 'get',
             url: `${this.baseUrl}/search`,
             params: {
-              q: this.searchTerm
+              q: this.searchTerm,
+              offset:this.searchOffset
             }
           });
-          this.searchResult = response.data;
-          console.log('here in searchContainer component',this.searchResult);
+
+          console.log(response.data);
+          this.searchResult = response.data.searchHitResult;
+          this.numHits = response.data.numHits;
+          console.log(this.numHits);
+
           // push router to /search
           this.$router.push({path:'/search', query:{q:this.searchTerm }});
+          this.searchTerm = this.$route.query.q;
           // console.log(this.searchResult);
         } catch (e) {
           console.error(e);
         }
       }
+    },
+    async handlePageResult(newVal,perPage) {
+      this.searchOffset = (newVal-1)*perPage;
+      if(this.searchOffset + 10 > this.numHits) {
+        this.searchOffset = this.numHits-10;
+      }
+      await this.handleSearch();
+      document.documentElement.scrollTop=0;
     }
   }
 });
+
+
+
 
 
 // creating routes

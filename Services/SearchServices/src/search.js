@@ -27,7 +27,11 @@ var search = async (options,offset = 0,index = default_index) => {
       highlight:{fields:{description:{ }}}
     }
   });
-  return response.hits.hits.map(searchHitResult);
+
+  return {
+    numHits:response.hits.total,
+    searchHitResult:response.hits.hits.map(searchHitResult)
+  };
 }
 
 function searchHitResult(hit) {
