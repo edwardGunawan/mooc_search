@@ -8,18 +8,22 @@ Vue.use(Buefy.default)
 const SearchBar = Vue.component('search-bar', {
   template:`
   <section class="search-bar">
-    <b-autocomplete
-              rounded
-              v-model="searchTerm"
-              :data="autoCompleteResult"
-              :loading="isFetching"
-              placeholder="e.g. jQuery"
-              icon="magnify"
-              @input="onSearchInput"
-              @keydown.enter.native="onSearch()"
-              @select="option => selected = option">
-              <template slot="empty">No results found</template>
-    </b-autocomplete>
+    <b-field>
+      <b-autocomplete
+                rounded
+                v-model="searchTerm"
+                :data="autoCompleteResult"
+                :loading="isFetching"
+                placeholder="e.g. jQuery"
+                icon="magnify"
+                :open-on-focus="openOnFocus"
+                @input="onSearchInput"
+                @keyup.enter.native="onEnterPress()"
+                @blur.native="console.log('blur event triggere')"
+                @select="option => selected = option">
+                <template slot="empty">No results found</template>
+      </b-autocomplete>
+    </b-field>
   </section>
   `,
   props:['searchTerm','setSearchTerm','baseUrl','handleSuggest','onSearch'],
@@ -28,7 +32,8 @@ const SearchBar = Vue.component('search-bar', {
       autoCompleteResult: [],
       isFetching:false,
       searchDebounce: null,
-      selected: null
+      selected: null,
+      openOnFocus:true
     }
   },
   watch: {
@@ -59,6 +64,11 @@ const SearchBar = Vue.component('search-bar', {
         isFetching = false;
         console.error(e);
       }
+    },
+    async onEnterPress(){
+      this.onSearch();
+      // console.log('here in key press');
+
     }
   }
 });
@@ -135,9 +145,9 @@ const FrontPageContainer = Vue.component('front-page-container',{
     },
     async handleSuggest (term = '') {
       try {
-        console.log(`in handleSuggest ${term}`);
+        // console.log(`in handleSuggest ${term}`);
         this.searchTerm = term;
-        console.log(`searchTerm ${this.searchTerm}`);
+        // console.log(`searchTerm ${this.searchTerm}`);
         let response = await axios({
           method: 'get',
           url:`${this.baseUrl}/suggest`,
@@ -185,6 +195,7 @@ const SearchContainer = Vue.component('search-container',{
           :onSearch="handleSearch"></search-bar>
       </div>
     </nav>
+    <b-loading :active.sync="isLoading" :canCancel="true"></b-loading>
 
     <ul>
       <li v-for="res in searchResult">
@@ -215,6 +226,7 @@ const SearchContainer = Vue.component('search-container',{
   data() {
     return {
       searchTerm:'',
+      isLoading: false,
       searchOffset:0,
       baseUrl: 'http://localhost:3000',
       searchResult: [],
@@ -234,7 +246,7 @@ const SearchContainer = Vue.component('search-container',{
     },
     async handleSuggest (term = '') {
       try {
-        console.log(`in handleSuggest ${term}`);
+        // console.log(`in handleSuggest ${term}`);
         this.searchTerm = term;
         let response = await axios({
           method: 'get',
@@ -249,12 +261,12 @@ const SearchContainer = Vue.component('search-container',{
         console.error(e);
       }
     },
-
     async handleSearch() {
       if(this.searchTerm.length !== 0) {
         try {
-          // console.log(`${this.$router.query}`);
-          console.log(`This is the searchTerm ${this.searchTerm}`);
+          console.log(`${this.searchTerm}`);
+          console.log(`There in handle search search-container component`);
+          this.isLoading = true;
           let response = await axios({
             method: 'get',
             url: `${this.baseUrl}/search`,
@@ -267,11 +279,14 @@ const SearchContainer = Vue.component('search-container',{
           console.log(response.data);
           this.searchResult = response.data.searchHitResult;
           this.numHits = response.data.numHits;
+
           console.log(this.numHits);
 
           // push router to /search
           this.$router.push({path:'/search', query:{q:this.searchTerm }});
-          this.searchTerm = this.$route.query.q;
+          this.isLoading = false;
+
+
           // console.log(this.searchResult);
         } catch (e) {
           console.error(e);
