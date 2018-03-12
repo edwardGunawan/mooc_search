@@ -19,7 +19,6 @@ const SearchBar = Vue.component('search-bar', {
                 :open-on-focus="openOnFocus"
                 @input="onSearchInput"
                 @keyup.enter.native="onEnterPress()"
-                @blur.native="console.log('blur event triggere')"
                 @select="option => selected = option">
                 <template slot="empty">No results found</template>
       </b-autocomplete>
@@ -66,9 +65,9 @@ const SearchBar = Vue.component('search-bar', {
       }
     },
     async onEnterPress(){
-      this.onSearch();
-      // console.log('here in key press');
-
+      this.onSearch().then(() => {
+        this.$router.go();
+      });
     }
   }
 });
@@ -124,10 +123,13 @@ const Pagination = Vue.component('pagination', {
 const FrontPageContainer = Vue.component('front-page-container',{
   // need to defined the template like in react
   template: `
-    <div class="container is-fluid front-page">
-      <label class="label hero-title">Mooc_Search</label>
-      <search-bar :searchTerm="searchTerm" :setSearchTerm="setSearchTerm" :baseUrl="baseUrl" :handleSuggest="handleSuggest" :onSearch="handleSearch"></search-bar>
-    </div>`,
+    <transition name="fade">
+      <div class="container is-fluid front-page">
+        <label class="label hero-title">Mooc_Search</label>
+        <search-bar :searchTerm="searchTerm" :setSearchTerm="setSearchTerm" :baseUrl="baseUrl" :handleSuggest="handleSuggest" :onSearch="handleSearch"></search-bar>
+      </div>
+    </transition>
+    `,
   data() {
     return {
       searchTerm:'',
@@ -182,45 +184,47 @@ const FrontPageContainer = Vue.component('front-page-container',{
 const SearchContainer = Vue.component('search-container',{
   template:`
   <div>
-    <nav class="columns">
-      <div class="column is-3 is-one-third-mobile">
-        <label class="label hero-subtitle" @click="back()">Mooc_Search</label>
-      </div>
-      <div class="column is-7 is-two-third-mobile">
-        <search-bar
-          :searchTerm="searchTerm"
-          :setSearchTerm="setSearchTerm"
-          :baseUrl="baseUrl"
-          :handleSuggest="handleSuggest"
-          :onSearch="handleSearch"></search-bar>
-      </div>
-    </nav>
-    <b-loading :active.sync="isLoading" :canCancel="true"></b-loading>
-
-    <ul>
-      <li v-for="res in searchResult">
-        <div class="box box-container">
-          <article class="media">
-            <div class="media-left">
-              <figure class="image is-64x64">
-                <img :src="res.image" :alt="res.title"/>
-              </figure>
-            </div>
-            <div class="media-content">
-              <div class="content">
-                <a target="_blank" :href="res.link"><strong> {{ res.title }} </strong></a>
-                <small>{{ res.currency }}</small>
-                <p>{{ res.language }}</p>
-                <div class="subtitle" v-html="res.description"></div>
-              </div>
-            </div>
-          </article>
+    <tansition name="fade">
+      <nav class="columns">
+        <div class="column is-3 is-one-third-mobile">
+          <label class="label hero-subtitle" @click="back()">Mooc_Search</label>
         </div>
-      </li>
-    </ul>
-    <pagination :numHits="numHits" :searchOffset="searchOffset"
-      :handlePageResult="handlePageResult"
-      ></pagination>
+        <div class="column is-7 is-two-third-mobile">
+          <search-bar
+            :searchTerm="searchTerm"
+            :setSearchTerm="setSearchTerm"
+            :baseUrl="baseUrl"
+            :handleSuggest="handleSuggest"
+            :onSearch="handleSearch"></search-bar>
+        </div>
+      </nav>
+      <b-loading :active.sync="isLoading" :canCancel="true"></b-loading>
+
+      <ul class="result-list" >
+        <li v-for="res in searchResult">
+          <div class="box box-container">
+            <article class="media">
+              <div class="media-left">
+                <figure class="image is-64x64">
+                  <img :src="res.image" :alt="res.title"/>
+                </figure>
+              </div>
+              <div class="media-content">
+                <div class="content">
+                  <a target="_blank" :href="res.link"><strong> {{ res.title }} </strong></a>
+                  <small>{{ res.currency }}</small>
+                  <p>{{ res.language }}</p>
+                  <div class="subtitle description" v-html="res.description"></div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </li>
+      </ul>
+      <pagination class="pagination" :numHits="numHits" :searchOffset="searchOffset"
+        :handlePageResult="handlePageResult"
+        ></pagination>
+    </transition>
   </div>
   `,
   data() {

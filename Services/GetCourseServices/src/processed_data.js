@@ -143,7 +143,7 @@ var course_udemy = async() =>{
         title: course.title,
         image: course.image_480x270,
         link: base_url + course.url,
-        description:  `${(course.description) ? course.description: 'no description'}`,
+        description:  `${(course.description) ? course.description: 'Click on website to know more'}`,
         currency_unit: course.price.charAt(0),
         amount:course.price.substring(1),
         instructors: name,
