@@ -1,0 +1,164 @@
+{
+    "containerDefinitions": [
+        {
+            "environment": [
+                {
+                    "name": "bootstrap.memory_lock",
+                    "value": "true"
+                },
+                {
+                    "name": "ES_JAVA_OPTS",
+                    "value": "-Xms512m -Xmx512m"
+                },
+                {
+                    "name": "discovery.type",
+                    "value": "single-node"
+                }
+            ],
+            "essential": true,
+            "image": "docker.elastic.co/elasticsearch/elasticsearch:6.2.2",
+            "mountPoints": [
+                {
+                    "containerPath": "/usr/share/elasticsearch/config/elasticsearch.yml",
+                    "sourceVolume": "_Elasticsearch_Yml"
+                },
+                {
+                    "containerPath": "/usr/share/elasticsearch/data",
+                    "sourceVolume": "Esdata"
+                }
+            ],
+            "name": "elasticsearch",
+            "portMappings": [
+                {
+                    "containerPort": 9300,
+                    "hostPort": 9300
+                },
+                {
+                    "containerPort": 9200,
+                    "hostPort": 9200
+                }
+            ]
+        },
+        {
+            "command": [
+                "true"
+            ],
+            "essential": true,
+            "image": "courses-db",
+            "name": "get-course-services",
+            "portMappings": [
+                {
+                    "containerPort": 5432,
+                    "hostPort": 5433
+                }
+            ]
+        },
+        {
+            "environment": [
+                {
+                    "name": "NODE_ENV",
+                    "value": "local"
+                },
+                {
+                    "name": "ES_HOST",
+                    "value": "elasticsearch"
+                },
+                {
+                    "name": "PORT",
+                    "value": "3000"
+                },
+                {
+                    "name": "jsonlocFile",
+                    "value": "../data/course.json"
+                },
+                {
+                    "name": "jsonTestFile",
+                    "value": "../data/course_test.json"
+                }
+            ],
+            "essential": true,
+            "image": "search-services",
+            "mountPoints": [
+                {
+                    "containerPath": "/usr/src/app",
+                    "sourceVolume": "_ServicesSearchservices"
+                },
+                {
+                    "containerPath": "/usr/src/app/data",
+                    "sourceVolume": "_ServicesGetcourseservicesData"
+                },
+                {
+                    "containerPath": "/usr/src/package.json",
+                    "sourceVolume": "_ServicesSearchservicesPackage_Json"
+                }
+            ],
+            "name": "search-services",
+            "portMappings": [
+                {
+                    "containerPort": 3000,
+                    "hostPort": 3000
+                },
+                {
+                    "containerPort": 9229,
+                    "hostPort": 9229
+                }
+            ]
+        },
+        {
+            "essential": true,
+            "image": "nginx",
+            "mountPoints": [
+                {
+                    "containerPath": "/usr/share/nginx/html",
+                    "sourceVolume": "_ServicesWebservicesPublic"
+                }
+            ],
+            "name": "web-services",
+            "portMappings": [
+                {
+                    "containerPort": 80,
+                    "hostPort": 8080
+                }
+            ]
+        }
+    ],
+    "family": "",
+    "volumes": [
+        {
+            "host": {
+                "sourcePath": "./Services/SearchServices"
+            },
+            "name": "_ServicesSearchservices"
+        },
+        {
+            "host": {
+                "sourcePath": "./Services/GetCourseServices/data"
+            },
+            "name": "_ServicesGetcourseservicesData"
+        },
+        {
+            "host": {
+                "sourcePath": "./Services/SearchServices/package.json"
+            },
+            "name": "_ServicesSearchservicesPackage_Json"
+        },
+        {
+            "host": {
+                "sourcePath": "./Services/WebServices/public"
+            },
+            "name": "_ServicesWebservicesPublic"
+        },
+        {
+            "host": {
+                "sourcePath": "./elasticsearch.yml"
+            },
+            "name": "_Elasticsearch_Yml"
+        },
+        {
+            "host": {
+                "sourcePath": "esdata"
+            },
+            "name": "Esdata"
+        }
+    ]
+}

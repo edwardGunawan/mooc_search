@@ -9,6 +9,7 @@ version: '3'
 services:
   get-course-services:
     container_name: courses-db
+    image: courses-db # youruser/yourimage
     build:
       context: ./Services/GetCourseServices
     env_file:
@@ -21,6 +22,7 @@ services:
 
   search-services: #node.js app for backend application logic
     container_name: search-services
+    image: search-services
     build: ./Services/SearchServices
     ports:
       - "3000:3000" # expose API port
