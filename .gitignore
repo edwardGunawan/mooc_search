@@ -7,4 +7,5 @@ Services/GetCourseServices/node_modules
 Services/SearchServices/src/connection.js
 Services/SearchServices/node_modules
 config
-WebServices/conf
+Services/WebServices/conf/
+docker-compose.prod.yml
