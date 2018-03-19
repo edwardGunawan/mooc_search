@@ -6,4 +6,5 @@ Services/GetCourseServices/data/course_test.json
 Services/GetCourseServices/node_modules
 Services/SearchServices/src/connection.js
 Services/SearchServices/node_modules
-config/production
+config
+WebServices/conf
