@@ -9,7 +9,7 @@
   "scripts": {
     "test": "mocha tests/server.test.js --exit && mocha tests/search.test.js && mocha tests/connection.test.js && mocha tests/suggest.test.js",
     "bulkImport": "docker exec search-services \"node\" \"src/bulkImport.js\" ",
-    "start": "node server.js"
+    "start": "node src/bulkImport.js && node server.js" 
   },
   "author": "",
   "license": "ISC",

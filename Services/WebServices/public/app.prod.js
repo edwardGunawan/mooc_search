@@ -2,7 +2,7 @@
 
 // Global variable
 Vue.use(Buefy.default)
-const host =  'http://167.99.56.190:3000';
+const host =  'http://192.168.99.100:3000';
 // const host ='http://localhost:3000';
 const searchUrl = host;
 

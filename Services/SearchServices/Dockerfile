@@ -7,6 +7,8 @@ WORKDIR /usr/src/app
 
 # install and cache up app dependencies
 COPY package*.json ./
+ADD ./data ./usr/src/app/data
+
 RUN npm install
 
 # Copy source code

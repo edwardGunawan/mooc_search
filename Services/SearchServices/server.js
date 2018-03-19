@@ -1,4 +1,11 @@
 var express = require('express');
+console.log(__dirname, ' here in server.js');
+const fs = require('fs');
+const path = require('path');
+// path.join(__dirname, '../..')
+// fs.readdirSync(__dirname+'/data').forEach(file => {
+//   console.log(file);
+// })
 var bodyParser = require('body-parser');
 var validate = require('express-joi');
 var helmet = require('helmet'); // sercure express app setting various http header

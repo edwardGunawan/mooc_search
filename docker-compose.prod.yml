@@ -18,29 +18,31 @@ services:
       - "5433:5432"
     healthcheck:
       test: ["CMD","curl","-f","http://localhost || exit 1"]
-    command: 'true'
+    # command: 'done'
 
   search-services: #node.js app for backend application logic
     container_name: search-services
     image: edwardhuang/mooc_search:search-services
-    build: ./Services/SearchServices
+    build:
+      context: ./Services/SearchServices
     ports:
       - "3000:3000" # expose API port
       - "9229:9229" # Expose node process debug port (disable in production)
-    deploy:
-      replicas: 5
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 50M
-      restart_policy:
-        condition: on-failure
-    volumes: # Attach local data directory to persist(save) data
-      - "./Services/SearchServices:/usr/src/app"
-      - "./Services/GetCourseServices/data:/usr/src/app/data" # your hostFilePath:containerFilePath
-      - "./Services/SearchServices/package.json:/usr/src/package.json"
+    # deploy:
+    #   replicas: 5
+    #   resources:
+    #     limits:
+    #       cpus: "0.1"
+    #       memory: 50M
+    #   restart_policy:
+    #     condition: on-failure
+    # volumes: # Attach local data directory to persist(save) data
+      # - "./Services/SearchServices:/usr/src/app"
+      # - "./Services/GetCourseServices/data:/usr/src/app/data" # your hostFilePath:containerFilePath
+      # - "./Services/SearchServices/package.json:/usr/src/package.json"
     depends_on: # tell docker compose to also starts other services if this services is started
       - elasticsearch
+      - get-course-services
     environment: # Set ENV vars
       - NODE_ENV=local
       - ES_HOST=elasticsearch
@@ -51,34 +53,37 @@ services:
 
   web-services: # Nginx server for frontend and backend is express
     container_name: web-services
-    image: nginx
-    deploy:
-      replicas: 5
-      resources:
-        limits:
-          cpus: "0.1"
-          memory: 50M
-      restart_policy:
-        condition: on-failure
-    volumes: #Serve local public dir
-      - ./Services/WebServices/public:/usr/share/nginx/html
+    image: edwardhuang/mooc_search:nginx
+    build: ./Services/WebServices
+    # deploy:
+    #   replicas: 5
+    #   resources:
+    #     limits:
+    #       cpus: "0.1"
+    #       memory: 50M
+    #   restart_policy:
+    #     condition: on-failure
+    # volumes: #Serve local public dir
+    #   - ./Services/WebServices/public:/usr/share/nginx/html
     ports:
       - "8080:80" # forward frontend side for localhost:8080
-  # visualizer:
-  #   image: dockersamples/visualizer:stable
-  #   ports:
-  #     - "5000:5080"
-  #   volumes:
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
-  #   deploy:
-  #     placement:
-  #       constraints: [node.role == manager]
+#   visualizer:
+#     image: dockersamples/visualizer:stable
+#     ports:
+#       - "5000:5080"
+#     volumes:
+#       - "/var/run/docker.sock:/var/run/docker.sock"
+#     deploy:
+#       placement:
+#         constraints: [node.role == manager]
 #
   elasticsearch: # elasticsearch instance
     container_name: esSearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    image: edwardhuang/mooc_search:es-image
+    build:
+      context: ./config/production
     volumes: # Persist es data in the separate "esdata" volume
-      - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      # - ./config:/usr/share/elasticsearch/config
       - esdata:/usr/share/elasticsearch/data
     environment:
       - bootstrap.memory_lock=true
