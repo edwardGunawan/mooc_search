@@ -6,8 +6,4 @@ Services/GetCourseServices/data/course_test.json
 Services/GetCourseServices/node_modules
 Services/SearchServices/src/connection.js
 Services/SearchServices/node_modules
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+config/production
