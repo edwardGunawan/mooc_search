@@ -209,7 +209,8 @@ const SearchContainer = Vue.component('search-container',{
             <article class="media">
               <div class="media-left">
                 <figure class="image is-64x64">
-                  <img :src="res.image" :alt="res.title"/>
+                    <img v-if="res.image.length > 0 ":src="res.image.length > 0 ? res.image : './assets/courseIcon.png'"  :alt="res.title"/>
+                    <img v-else src="./assets/courseIcon.png" alt="broken" />
                 </figure>
               </div>
               <div class="media-content">
