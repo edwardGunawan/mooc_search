@@ -4,9 +4,8 @@
   "description": "Mooc's Agregator",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --inspect=0.0.0.0:9292 Services/SearchServices/server.js",
-    "example": "nodemon --exec babel-node ./public/js/example.js"
+    "test": "mocha Services/SearchServices/tests/server.test.js --exit && mocha Services/SearchServices/tests/search.test.js && mocha Services/SearchServices/tests/connection.test.js && mocha Services/SearchServices/tests/suggest.test.js",
+    "start": "docker-compose up -d --build",
   },
   "repository": {
     "type": "git",
