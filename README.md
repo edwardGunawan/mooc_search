@@ -19,7 +19,7 @@ I created test search for (SearchServices)backend API, GetCourse Services, using
   - ```cd ./Services/SearchServices```
   - ```npm install```
 - To test get course services: ```cd ./Services/GetCourseServices``` and run ```npm test```
-- I have not created test case for WebServices
+- I have not created test cases for WebServices
 
 ## Deployment
 I deployed the application in Digital ocean cloud service.
@@ -52,6 +52,7 @@ MIT
 - Creating [Microservice](http://mherman.org/blog/2017/12/07/dockerizing-a-react-app/#.WrHtsZNuZ69) with Docker
 
 ### Todo
+------
 This is just a minimum viable product(MVP) that I create for starting out system side projects after graduated from College. I have always think that there is a problem finding courses online and when you search google there always thousands of different online courses for learning and I get confused by the amount of what to take or which courses are go towards all levels. Therefore, this side project still has a lot of feature if you want to continue.
 - filter options (by courses)
 - create cron jobs to constantly crawl websites
